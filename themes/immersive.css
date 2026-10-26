@@ -65,6 +65,13 @@
     box-shadow: inset 0 0 0 1px #4a0d09;
 }
 
+.swatch-typewriter {
+    background:
+        radial-gradient(circle at 62% 56%, #16120e 0 17%, transparent 20%),
+        #e2d7c5;
+    box-shadow: inset 0 0 0 2px #16120e;
+}
+
 /* Botón de sonido (solo se muestra cuando hay temas inmersivos) */
 .immersive-sound {
     display: flex;
