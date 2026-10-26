@@ -66,6 +66,7 @@
         for (let i = 0; i < nodes.length; i++) {
             if (nodes[i].isConnected) encryptTree(nodes[i]);
         }
+        syncReadWindow();
     }
 
     function onMutations(list) {
@@ -76,20 +77,48 @@
         if (newNodes.length && !pendingScan) pendingScan = requestAnimationFrame(scanNew);
     }
 
-    // Al borrar con Retroceso la app vuelve a mostrar la letra real: se cifra otra vez.
-    function reencryptAfterBackspace() {
-        requestAnimationFrame(() => {
-            if (!display) return;
-            const spans = display.querySelectorAll('.char-pending');
-            for (let i = 0; i < spans.length; i++) {
-                const s = spans[i];
-                if (s._real !== undefined && s.firstChild && s.firstChild.data === s._real) encrypt(s);
-            }
-        });
+    // Zona legible: las próximas READ_AHEAD letras se muestran en claro para saber qué escribir;
+    // más allá siguen cifradas. Se recalcula tras cada tecla (también con Retroceso).
+    const READ_AHEAD = 40;
+    let walker = null;
+    let syncRaf = 0;
+
+    function reveal(span) {
+        const node = span.firstChild;
+        if (span._real !== undefined && node && node.data === span._enc) node.data = span._real;
+        if (!span.classList.contains('cp-read')) span.classList.add('cp-read');
+    }
+
+    function hide(span) {
+        if (span.classList.contains('cp-read')) span.classList.remove('cp-read');
+        if (span._real !== undefined) encrypt(span); // vuelve a cifrar (si la app había reescrito la real)
+    }
+
+    function syncReadWindow() {
+        syncRaf = 0;
+        if (!display) return;
+        const cur = display.querySelector('.char-current');
+        if (!cur) return;
+        if (!walker) {
+            walker = document.createTreeWalker(display, NodeFilter.SHOW_ELEMENT, {
+                acceptNode: n => (n.classList.contains('char') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP)
+            });
+        }
+        walker.currentNode = cur;
+        for (let i = 0; i < READ_AHEAD + 6; i++) {
+            const n = walker.nextNode();
+            if (!n) break;
+            if (!n.classList.contains('char-pending')) continue;
+            if (i < READ_AHEAD) reveal(n); else hide(n);
+        }
+    }
+
+    function scheduleSync() {
+        if (!syncRaf) syncRaf = requestAnimationFrame(syncReadWindow);
     }
 
     function onKeydown(e) {
-        if (e.key === 'Backspace') reencryptAfterBackspace();
+        if (e.key === 'Backspace') scheduleSync();
     }
 
     function decryptAll() {
@@ -99,6 +128,7 @@
             const s = spans[i];
             if (s._real !== undefined && s.firstChild && s.firstChild.data === s._enc) s.firstChild.data = s._real;
             s._real = s._enc = undefined;
+            s.classList.remove('cp-read');
         }
     }
 
@@ -181,6 +211,7 @@
     // Eventos del juego
     // ---------------------------------------------------
     function onKey(e) {
+        scheduleSync();
         const now = performance.now();
         if (now - lastKeySound > 18) { // si llegan teclas casi a la vez, solo suena una
             lastKeySound = now;
@@ -223,6 +254,7 @@
         observer = new MutationObserver(onMutations);
         observer.observe(display, { childList: true });
         encryptTree(display);                       // si ya hay texto en pantalla
+        syncReadWindow();
         document.addEventListener('keydown', onKeydown, true);
     }
 
@@ -232,6 +264,8 @@
         newNodes = [];
         document.removeEventListener('keydown', onKeydown, true);
         decryptAll();
+        if (syncRaf) { cancelAnimationFrame(syncRaf); syncRaf = 0; }
+        walker = null;
         if (glitchAnim) { glitchAnim.cancel(); glitchAnim = null; }
         display = null;
     }

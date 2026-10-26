@@ -172,8 +172,25 @@ body.theme-cyberpunk .logo-accent {
     -webkit-text-fill-color: currentColor;
 }
 
-body.theme-cyberpunk .logo-icon {
+/* Logo: caja negra con borde de neón y corte diagonal; el icono ">_" en verde fósforo bien visible */
+body.theme-cyberpunk .logo-icon,
+body.theme-cyberpunk .footer-logo-icon {
+    background: #000;
+    border: 1px solid var(--cp-cyan);
+    border-radius: 0;
     color: var(--cp-phos);
+    box-shadow: none;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+body.theme-cyberpunk .logo-icon svg,
+body.theme-cyberpunk .footer-logo-icon svg {
+    stroke-width: 2.6;
+}
+
+body.theme-cyberpunk .logo:hover .logo-icon {
+    box-shadow: none;
+    border-color: var(--cp-phos);
 }
 
 body.theme-cyberpunk .tagline {
@@ -382,6 +399,11 @@ body.theme-cyberpunk #text-display .char {
 /* Letra por escribir: parece código cifrado (el JS cambia el glifo; aquí solo el color apagado) */
 body.theme-cyberpunk #text-display .char.char-pending {
     color: var(--cp-pending, #2f7f6e);
+}
+
+/* Las próximas letras (las que toca escribir ahora) se leen claro: texto real, más brillante */
+body.theme-cyberpunk #text-display .char.char-pending.cp-read {
+    color: #8fe9d3;
 }
 
 /* Letra descifrada: verde fósforo */
