@@ -1,0 +1,527 @@
+/* ===================================================
+   ISpeedType — Tema inmersivo: MÁQUINA DE ESCRIBIR ANTIGUA (Noir / Vintage)
+   Todo va dentro de body.theme-typewriter: sin la clase, esto no afecta a nada.
+   Estética: analógica y monocromática en sepia. Sin bordes redondeados, sin
+   degradados, sin sombras: una hoja en blanco sobre un rodillo, tinta y papel.
+
+   Reglas de rendimiento (ver notas en styles.css):
+     - las letras solo cambian de color / sombra (se pintan; medido: sin coste de layout);
+     - nada de animaciones: es un tema analógico, "no hay animaciones modernas".
+   =================================================== */
+
+body.theme-typewriter {
+    --tw-kraft: #e2d7c5;
+    --tw-sheet: #f3eddf;
+    --tw-ink: #16120e;
+    --tw-ink-soft: #3d3328;
+    --tw-faded: #736b5d;
+    --tw-rule: #8c7d66;
+    --tw-red: #8e1b14;
+
+    /* Variables globales de la app, redefinidas */
+    --bg-primary: #e2d7c5;
+    --bg-secondary: #f3eddf;
+    --bg-card: #f3eddf;
+    --bg-card-hover: #f3eddf;
+    --bg-input: #f3eddf;
+
+    --text-primary: #16120e;
+    --text-secondary: #3d3328;
+    --text-muted: #5f5547;
+
+    --accent-primary: #16120e;
+    --accent-primary-hover: #3d3328;
+    --accent-glow: transparent;
+    --accent-secondary: #3d3328;
+    --accent-secondary-glow: transparent;
+
+    --color-correct: #16120e;
+    --color-correct-bg: transparent;
+    --color-error: #8e1b14;
+    --color-error-bg: transparent;
+    --color-error-glow: transparent;
+    --color-current: #16120e;
+    --color-current-bg: rgba(22, 18, 14, 0.1);
+    --color-pending: #736b5d;
+
+    --border-color: #8c7d66;
+    --border-color-hover: #3d3328;
+
+    --glow-1: transparent;
+    --glow-2: transparent;
+    --glow-3: transparent;
+
+    --font-sans: 'Special Elite', 'Courier New', Courier, monospace;
+    --font-mono: 'Special Elite', 'Courier New', Courier, monospace;
+
+    /* Sin esquinas redondeadas */
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
+    --radius-xl: 0;
+
+    /* Special Elite solo tiene un peso: que el navegador no lo "engorde" */
+    font-synthesis: none;
+
+    /* Papel kraft arrugado */
+    background-color: #e2d7c5;
+    background-image: url('typewriter-paper.svg');
+    background-size: 480px 480px;
+    transition: none;
+}
+
+body.theme-typewriter .bg-glow {
+    display: none;
+}
+
+/* Nada de sombras, cristal esmerilado ni degradados */
+body.theme-typewriter .glass-card,
+body.theme-typewriter .glass-card-mini,
+body.theme-typewriter .theme-dropdown,
+body.theme-typewriter .theme-toggle-btn,
+body.theme-typewriter .achievement-toast {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+}
+
+/* ---------- Encabezado ---------- */
+body.theme-typewriter .logo-text {
+    color: var(--tw-ink);
+    letter-spacing: 0.03em;
+}
+
+body.theme-typewriter .logo-accent {
+    background: none;
+    -webkit-text-fill-color: var(--tw-ink);
+    color: var(--tw-ink);
+    border-bottom: 3px double var(--tw-ink);
+}
+
+body.theme-typewriter .logo-icon {
+    background: transparent;
+    color: var(--tw-ink);
+    border: 2px solid var(--tw-ink);
+    box-shadow: none;
+}
+
+body.theme-typewriter .tagline {
+    color: var(--tw-ink-soft);
+    letter-spacing: 0.05em;
+}
+
+body.theme-typewriter .theme-toggle-btn,
+body.theme-typewriter .achievements-toggle-btn,
+body.theme-typewriter .stats-toggle-btn,
+body.theme-typewriter .lang-switch {
+    background: transparent;
+    color: var(--tw-ink);
+    border: 1px solid var(--tw-ink);
+    box-shadow: none;
+}
+
+body.theme-typewriter .lang-btn {
+    color: var(--tw-ink);
+}
+
+body.theme-typewriter .lang-btn.active,
+body.theme-typewriter .lang-btn[aria-pressed="true"] {
+    background: var(--tw-ink);
+    color: var(--tw-sheet);
+    box-shadow: none;
+}
+
+body.theme-typewriter .lang-btn:focus-visible {
+    outline-color: var(--tw-ink);
+}
+
+/* ---------- La hoja en el rodillo ---------- */
+body.theme-typewriter .glass-card {
+    background: var(--tw-sheet);
+    border: 1px solid var(--tw-rule);
+    box-shadow: none;
+}
+
+body.theme-typewriter .glass-card:hover {
+    border-color: var(--tw-rule);
+}
+
+/* Rodillo: una barra oscura sobre la hoja del test, con sus dos topes */
+body.theme-typewriter .typing-card {
+    position: relative;
+    margin-top: 22px;
+}
+
+body.theme-typewriter .typing-card::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    right: -14px;
+    top: -18px;
+    height: 12px;
+    background: var(--tw-ink);
+    border-radius: 6px;
+    pointer-events: none;
+}
+
+body.theme-typewriter .typing-card::after {
+    content: '';
+    position: absolute;
+    left: -22px;
+    right: -22px;
+    top: -14px;
+    height: 4px;
+    background: var(--tw-ink-soft);
+    pointer-events: none;
+}
+
+/* Estadísticas: renglones sobre el papel, sin cajas */
+body.theme-typewriter .glass-card-mini {
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--tw-ink);
+    box-shadow: none;
+}
+
+body.theme-typewriter .stat-value,
+body.theme-typewriter #wpm-display,
+body.theme-typewriter #accuracy-display,
+body.theme-typewriter #time-display {
+    color: var(--tw-ink);
+}
+
+body.theme-typewriter .stat-label {
+    letter-spacing: 0.12em;
+    color: var(--tw-ink-soft);
+}
+
+body.theme-typewriter .card-icon,
+body.theme-typewriter .results-badge {
+    background: transparent;
+    border: 2px solid var(--tw-ink);
+    color: var(--tw-ink);
+    box-shadow: none;
+    animation: none;
+}
+
+/* ---------- Botones: sellos de tinta, sin animaciones ---------- */
+body.theme-typewriter .btn,
+body.theme-typewriter .btn-practice-start,
+body.theme-typewriter .btn-tutor-start {
+    border: 2px solid var(--tw-ink);
+    border-radius: 0;
+    box-shadow: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: none;
+    transform: none;
+}
+
+body.theme-typewriter .btn:hover,
+body.theme-typewriter .btn-practice-start:hover,
+body.theme-typewriter .btn-tutor-start:hover,
+body.theme-typewriter .btn:active {
+    transform: none;
+    box-shadow: none;
+}
+
+body.theme-typewriter .btn-primary,
+body.theme-typewriter .btn-tutor-start {
+    background: var(--tw-ink);
+    color: var(--tw-sheet);
+}
+
+body.theme-typewriter .btn-primary:hover,
+body.theme-typewriter .btn-tutor-start:hover {
+    background: var(--tw-sheet);
+    color: var(--tw-ink);
+}
+
+body.theme-typewriter .btn-secondary,
+body.theme-typewriter .btn-ghost,
+body.theme-typewriter .btn-practice-start {
+    background: transparent;
+    color: var(--tw-ink);
+}
+
+body.theme-typewriter .btn-secondary:hover,
+body.theme-typewriter .btn-ghost:hover,
+body.theme-typewriter .btn-practice-start:hover {
+    background: var(--tw-ink);
+    color: var(--tw-sheet);
+    border-color: var(--tw-ink);
+}
+
+body.theme-typewriter .btn-diff {
+    background: transparent;
+    color: var(--tw-ink);
+    border: 1px solid var(--tw-ink);
+    box-shadow: none;
+}
+
+body.theme-typewriter .btn-diff:hover {
+    background: rgba(22, 18, 14, 0.08);
+}
+
+body.theme-typewriter .btn-diff.active,
+body.theme-typewriter .btn-diff.diff-hardcore.active {
+    background: var(--tw-ink);
+    color: var(--tw-sheet);
+    border-color: var(--tw-ink);
+}
+
+body.theme-typewriter .card-description kbd,
+body.theme-typewriter .typing-hint kbd {
+    background: transparent;
+    border: 1px solid var(--tw-ink);
+    border-radius: 0;
+    color: var(--tw-ink);
+}
+
+/* ---------- Campos de texto ---------- */
+body.theme-typewriter .text-input,
+body.theme-typewriter .typing-input {
+    background: transparent;
+    color: var(--tw-ink);
+    border: 0;
+    border-bottom: 2px solid var(--tw-ink);
+    box-shadow: none;
+}
+
+body.theme-typewriter .text-input {
+    border: 1px solid var(--tw-rule);
+    border-bottom-width: 2px;
+}
+
+body.theme-typewriter .text-input:focus,
+body.theme-typewriter .typing-input:focus {
+    border-color: var(--tw-ink);
+    box-shadow: none;
+}
+
+body.theme-typewriter .typing-input.has-error {
+    border-color: var(--tw-red);
+    box-shadow: none;
+    animation: none;
+}
+
+body.theme-typewriter .text-input::placeholder,
+body.theme-typewriter .typing-input::placeholder {
+    color: var(--tw-faded);
+}
+
+/* ---------- Texto a escribir ---------- */
+body.theme-typewriter #text-display {
+    font-size: 1.35rem;
+    letter-spacing: 0.02em;
+    line-height: 1.9;
+    scrollbar-color: var(--tw-ink-soft) transparent;
+}
+
+body.theme-typewriter #text-display::-webkit-scrollbar-thumb {
+    background: var(--tw-ink-soft);
+}
+
+body.theme-typewriter #text-display .char {
+    transition: none;
+}
+
+/* Por escribir: gris tenue, pero legible */
+body.theme-typewriter #text-display .char.char-pending {
+    color: var(--color-pending);
+}
+
+/* Escrito: negro intenso con un leve sangrado de tinta fresca estampada con fuerza.
+   Medido con 20 000 letras: el text-shadow no añade coste de estilos ni de layout
+   (el texto se pinta por trozos), así que se usa el efecto real. */
+body.theme-typewriter #text-display .char.char-correct {
+    color: var(--tw-ink);
+    text-shadow: 0 0 1px rgba(22, 18, 14, 0.55), 0 0 3px rgba(22, 18, 14, 0.3);
+}
+
+/* Los espacios no llevan tinta */
+body.theme-typewriter #text-display .char.char-correct.char-space {
+    text-shadow: none;
+}
+
+/* Tinta irregular, como en una máquina real: unas teclas pegan más fuerte que otras */
+body.theme-typewriter #text-display .word .char.char-correct:nth-child(3n + 2) {
+    color: #2b241c;
+}
+
+body.theme-typewriter #text-display .word .char.char-correct:nth-child(5n + 1) {
+    color: #0c0a07;
+}
+
+body.theme-typewriter #text-display .word .char.char-correct:nth-child(7n + 3) {
+    color: #3a3125;
+}
+
+/* La racha de la app fuerza verde: aquí se mantiene la tinta negra */
+body.theme-typewriter #text-display.on-fire .char.char-correct {
+    color: var(--tw-ink) !important;
+}
+
+/* Error: borrón rojo de tinta densa. Sin animaciones. */
+body.theme-typewriter #text-display .char.char-error {
+    color: #fff4ec;
+    background-color: var(--tw-red);
+    background-image: radial-gradient(closest-side, #5e0f0a, var(--tw-red) 70%, transparent 100%);
+    background-size: 150% 120%;
+    background-position: 50% 55%;
+    background-repeat: no-repeat;
+    text-decoration: none;
+    animation: none;
+}
+
+/* ---------- Combo, vidas y racha ---------- */
+body.theme-typewriter #combo-label {
+    color: var(--tw-ink-soft) !important;
+}
+
+body.theme-typewriter #lives-count,
+body.theme-typewriter #lives-stat-card .stat-value,
+body.theme-typewriter .combo-highlight,
+body.theme-typewriter #combo-count {
+    color: var(--tw-ink) !important;
+    text-shadow: none;
+}
+
+body.theme-typewriter .damage-hit {
+    animation: none;
+}
+
+body.theme-typewriter .typing-card.on-fire {
+    border-color: var(--tw-ink) !important;
+    box-shadow: none !important;
+}
+
+body.theme-typewriter .typing-input.on-fire-border {
+    border-color: var(--tw-ink) !important;
+    box-shadow: none !important;
+}
+
+/* ---------- Barra de progreso ---------- */
+body.theme-typewriter .progress-bar-container {
+    height: 10px;
+    background: transparent;
+    border: 1px solid var(--tw-ink);
+    border-radius: 0;
+}
+
+body.theme-typewriter .progress-bar-fill {
+    background: var(--tw-ink);
+    box-shadow: none;
+    border-radius: 0;
+}
+
+body.theme-typewriter .progress-bar-fill::after {
+    display: none;
+}
+
+body.theme-typewriter .progress-text {
+    color: var(--tw-ink);
+}
+
+/* ---------- Pantalla de resultados ---------- */
+body.theme-typewriter .results-title,
+body.theme-typewriter .results-card.game-over-state .results-title,
+body.theme-typewriter .results-card.ghost-over-state .results-title {
+    background: none;
+    -webkit-text-fill-color: var(--tw-ink);
+    color: var(--tw-ink);
+}
+
+body.theme-typewriter .results-card.game-over-state .results-badge,
+body.theme-typewriter .results-card.ghost-over-state .results-badge {
+    background: transparent;
+    border-color: var(--tw-red);
+    color: var(--tw-red);
+    box-shadow: none;
+}
+
+body.theme-typewriter .result-item {
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--tw-ink);
+}
+
+body.theme-typewriter .result-highlight {
+    background: transparent;
+    border-color: var(--tw-ink);
+}
+
+body.theme-typewriter .result-number,
+body.theme-typewriter .result-highlight .result-number {
+    background: none;
+    -webkit-text-fill-color: var(--tw-ink);
+    color: var(--tw-ink);
+}
+
+body.theme-typewriter .result-label {
+    color: var(--tw-ink-soft);
+}
+
+/* ---------- Cuenta atrás ---------- */
+body.theme-typewriter .countdown-overlay {
+    background: var(--tw-sheet);
+    border: 1px solid var(--tw-rule);
+    box-shadow: none;
+}
+
+body.theme-typewriter .countdown-number,
+body.theme-typewriter .countdown-label {
+    background: none;
+    -webkit-text-fill-color: var(--tw-ink);
+    color: var(--tw-ink);
+}
+
+/* ---------- Menú de temas y avisos ---------- */
+body.theme-typewriter .theme-dropdown {
+    background: var(--tw-sheet);
+    border: 1px solid var(--tw-ink);
+}
+
+body.theme-typewriter .theme-option,
+body.theme-typewriter .immersive-option,
+body.theme-typewriter .immersive-sound {
+    color: var(--tw-ink);
+}
+
+body.theme-typewriter .theme-option:hover,
+body.theme-typewriter .theme-option:focus-visible,
+body.theme-typewriter .immersive-option:hover,
+body.theme-typewriter .immersive-option:focus-visible,
+body.theme-typewriter .immersive-sound:hover,
+body.theme-typewriter .immersive-sound:focus-visible {
+    background: rgba(22, 18, 14, 0.08);
+    color: var(--tw-ink);
+    border-color: var(--tw-ink);
+}
+
+body.theme-typewriter .immersive-option.active {
+    background: var(--tw-ink);
+    color: var(--tw-sheet);
+    border-color: var(--tw-ink);
+}
+
+body.theme-typewriter .immersive-section {
+    border-top-color: var(--tw-ink);
+}
+
+body.theme-typewriter .immersive-toast,
+body.theme-typewriter .achievement-toast {
+    background: var(--tw-sheet);
+    color: var(--tw-ink);
+    border: 1px solid var(--tw-ink);
+    box-shadow: none;
+}
+
+/* El aviso de logro usa dorado sobre oscuro: en papel claro se pasa a tinta */
+body.theme-typewriter .achievement-badge {
+    color: var(--tw-red);
+}
+
+body.theme-typewriter .achievement-title {
+    color: var(--tw-ink);
+}

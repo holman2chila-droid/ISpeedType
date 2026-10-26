@@ -16,6 +16,7 @@
     "ui.immersive-graffiti": "Street graffiti",
     "ui.immersive-manga": "Manga battle",
     "ui.immersive-deepweb": "Deep web (horror)",
+    "ui.immersive-typewriter": "Typewriter",
     "ui.immersive-cyberpunk": "Cyberpunk (Terminal 2077)",
     "dw.warn-title": "⚠ Warning: horror content",
     "dw.warn-text": "This theme uses near-total darkness, screen shakes and deep sounds. The jump-scare mode adds sudden flashes and faces that appear for an instant when you miss, which can trigger seizures in people with photosensitive epilepsy. Choose how you want to play it.",
