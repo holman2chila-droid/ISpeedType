@@ -1,0 +1,934 @@
+/* ===================================================
+   ISpeedType — Tema inmersivo: CYBERPUNK (Terminal 2077)
+   Todo va dentro de body.theme-cyberpunk: sin la clase, esto no afecta a nada.
+
+   Reglas de rendimiento que respeta este archivo (ver notas en styles.css):
+     - nada de text-shadow ni animaciones por letra en el texto principal;
+     - las letras solo cambian de color / fondo (se pintan, no recalculan layout);
+     - las líneas de escaneo son UNA capa fija estática; la barra que las recorre
+       solo anima transform (la resuelve el compositor, no repinta);
+     - el glitch de error y el destello al acertar los crea themes/cyberpunk.js
+       con la Web Animations API, solo cuando hacen falta.
+   =================================================== */
+
+body.theme-cyberpunk {
+    /* Paleta propia del tema */
+    --cp-cyan: #00f0ff;
+    --cp-phos: #39ff88;
+    --cp-red: #ff2a55;
+    --cp-amber: #ffd23f;
+    --cp-mag: #ff2bd6;
+    --cp-ink: #000;
+    --cp-line: rgba(0, 240, 255, 0.55);
+    --cp-cut: 14px;
+
+    /* Variables globales de la app, redefinidas */
+    --bg-primary: #000;
+    --bg-secondary: #03070a;
+    --bg-card: rgba(2, 8, 10, 0.94);
+    --bg-card-hover: rgba(4, 14, 18, 0.97);
+    --bg-input: #000;
+
+    --text-primary: #d4fff4;
+    --text-secondary: #86d8c4;
+    --text-muted: #4f9a8a;
+
+    --accent-primary: #00f0ff;
+    --accent-primary-hover: #6af7ff;
+    --accent-glow: rgba(0, 240, 255, 0.28);
+    --accent-secondary: #39ff88;
+    --accent-secondary-glow: rgba(57, 255, 136, 0.25);
+
+    --color-correct: #39ff88;
+    --color-correct-bg: transparent;
+    --color-error: #ff2a55;
+    --color-error-bg: rgba(255, 42, 85, 0.16);
+    --color-error-glow: rgba(255, 42, 85, 0.4);
+    --color-current: #00f0ff;
+    --color-current-bg: rgba(0, 240, 255, 0.14);
+    --color-pending: #2f7f6e;
+
+    --border-color: rgba(0, 240, 255, 0.28);
+    --border-color-hover: rgba(0, 240, 255, 0.7);
+
+    --glow-1: transparent;
+    --glow-2: transparent;
+    --glow-3: transparent;
+
+    --font-sans: 'Share Tech Mono', 'JetBrains Mono', monospace;
+    --font-mono: 'Share Tech Mono', 'JetBrains Mono', monospace;
+
+    /* Esquinas rectas: el "redondeo" lo hace el corte diagonal (clip-path) */
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
+    --radius-xl: 0;
+
+    background: #000;
+    transition: none;
+}
+
+/* Sin brillos de fondo (animaciones con desenfoque caro) ni vidrio esmerilado */
+body.theme-cyberpunk .bg-glow {
+    display: none;
+}
+
+body.theme-cyberpunk .glass-card,
+body.theme-cyberpunk .glass-card-mini,
+body.theme-cyberpunk .theme-dropdown,
+body.theme-cyberpunk .theme-toggle-btn,
+body.theme-cyberpunk .achievement-toast {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* ---------- Líneas de escaneo (una sola capa fija) ---------- */
+body.theme-cyberpunk::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    background: repeating-linear-gradient(to bottom,
+            rgba(0, 255, 200, 0.07) 0,
+            rgba(0, 255, 200, 0.07) 1px,
+            transparent 1px,
+            transparent 3px);
+}
+
+/* Barra de refresco que recorre la pantalla (solo transform: sin repintado) */
+body.theme-cyberpunk::after {
+    content: '';
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 90px;
+    z-index: 9997;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, rgba(0, 255, 200, 0.05) 60%, rgba(0, 255, 200, 0.1) 100%, transparent 100%);
+    transform: translateY(-100px);
+    animation: cp-sweep 7s linear infinite;
+    will-change: transform;
+}
+
+@keyframes cp-sweep {
+    from {
+        transform: translateY(-100px);
+    }
+
+    to {
+        transform: translateY(100vh);
+    }
+}
+
+/* ---------- Esquinas cortadas en diagonal ----------
+   clip-path recorta el borde en las esquinas; la diagonal se dibuja con dos
+   degradados (arriba-izquierda y abajo-derecha) para que el contorno quede cerrado. */
+body.theme-cyberpunk .glass-card,
+body.theme-cyberpunk .glass-card-mini,
+body.theme-cyberpunk .btn,
+body.theme-cyberpunk .btn-practice-start,
+body.theme-cyberpunk .btn-tutor-start,
+body.theme-cyberpunk .btn-diff,
+body.theme-cyberpunk .text-input,
+body.theme-cyberpunk .typing-input,
+body.theme-cyberpunk .theme-dropdown {
+    border: 1px solid var(--cp-line);
+    border-radius: 0;
+    clip-path: polygon(var(--cp-cut) 0, 100% 0, 100% calc(100% - var(--cp-cut)), calc(100% - var(--cp-cut)) 100%, 0 100%, 0 var(--cp-cut));
+    background-origin: border-box;
+    background-repeat: no-repeat;
+    background-position: top left, bottom right, 0 0;
+    background-size: var(--cp-cut) var(--cp-cut), var(--cp-cut) var(--cp-cut), auto;
+    background-image:
+        linear-gradient(to bottom right, transparent calc(50% - 0.75px), var(--cp-line) calc(50% - 0.75px) calc(50% + 0.75px), transparent calc(50% + 0.75px)),
+        linear-gradient(to bottom right, transparent calc(50% - 0.75px), var(--cp-line) calc(50% - 0.75px) calc(50% + 0.75px), transparent calc(50% + 0.75px)),
+        linear-gradient(var(--bg-card), var(--bg-card));
+    box-shadow: none;
+}
+
+body.theme-cyberpunk .glass-card-mini,
+body.theme-cyberpunk .btn,
+body.theme-cyberpunk .btn-practice-start,
+body.theme-cyberpunk .btn-tutor-start,
+body.theme-cyberpunk .btn-diff {
+    --cp-cut: 9px;
+}
+
+/* Tarjetas grandes: pestaña magenta arriba a la izquierda + marca de datos abajo a la izquierda */
+body.theme-cyberpunk .glass-card {
+    background-position: top left, bottom right, 34px 0, 18px 100%, 0 0;
+    background-size: var(--cp-cut) var(--cp-cut), var(--cp-cut) var(--cp-cut), 64px 3px, 40px 2px, auto;
+    background-image:
+        linear-gradient(to bottom right, transparent calc(50% - 0.75px), var(--cp-line) calc(50% - 0.75px) calc(50% + 0.75px), transparent calc(50% + 0.75px)),
+        linear-gradient(to bottom right, transparent calc(50% - 0.75px), var(--cp-line) calc(50% - 0.75px) calc(50% + 0.75px), transparent calc(50% + 0.75px)),
+        linear-gradient(var(--cp-mag), var(--cp-mag)),
+        repeating-linear-gradient(90deg, var(--cp-line) 0 6px, transparent 6px 10px),
+        linear-gradient(var(--bg-card), var(--bg-card));
+}
+
+body.theme-cyberpunk .glass-card:hover {
+    border-color: var(--cp-cyan);
+}
+
+/* ---------- Encabezado ---------- */
+body.theme-cyberpunk .logo-text {
+    color: var(--cp-cyan);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+body.theme-cyberpunk .logo-accent {
+    color: var(--cp-phos);
+    background: none;
+    -webkit-text-fill-color: currentColor;
+}
+
+/* Logo: caja negra con borde de neón y corte diagonal; el icono ">_" en verde fósforo bien visible */
+body.theme-cyberpunk .logo-icon,
+body.theme-cyberpunk .footer-logo-icon {
+    background: #000;
+    border: 1px solid var(--cp-cyan);
+    border-radius: 0;
+    color: var(--cp-phos);
+    box-shadow: none;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+body.theme-cyberpunk .logo-icon svg,
+body.theme-cyberpunk .footer-logo-icon svg {
+    stroke-width: 2.6;
+}
+
+body.theme-cyberpunk .logo:hover .logo-icon {
+    box-shadow: none;
+    border-color: var(--cp-phos);
+}
+
+body.theme-cyberpunk .tagline {
+    color: var(--text-secondary);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+body.theme-cyberpunk .tagline::before {
+    content: '> ';
+    color: var(--cp-phos);
+}
+
+body.theme-cyberpunk .theme-toggle-btn,
+body.theme-cyberpunk .achievements-toggle-btn,
+body.theme-cyberpunk .lang-switch {
+    border-radius: 0;
+    border: 1px solid var(--cp-line);
+    background: #000;
+}
+
+/* ---------- Tarjetas ---------- */
+body.theme-cyberpunk .typing-card {
+    --cp-line: rgba(57, 255, 136, 0.5);
+}
+
+body.theme-cyberpunk .results-card {
+    --cp-line: rgba(255, 210, 63, 0.55);
+}
+
+body.theme-cyberpunk .card-header h2,
+body.theme-cyberpunk .results-title {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+body.theme-cyberpunk .card-icon,
+body.theme-cyberpunk .results-badge {
+    background: #000;
+    border: 1px solid var(--cp-cyan);
+    color: var(--cp-cyan);
+    border-radius: 0;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+
+/* Estadísticas */
+body.theme-cyberpunk .stat-card:nth-child(1) {
+    --cp-line: rgba(0, 240, 255, 0.55);
+}
+
+body.theme-cyberpunk .stat-card:nth-child(2) {
+    --cp-line: rgba(57, 255, 136, 0.55);
+}
+
+body.theme-cyberpunk .stat-card:nth-child(3) {
+    --cp-line: rgba(255, 210, 63, 0.55);
+}
+
+body.theme-cyberpunk .stat-card:nth-child(4) {
+    --cp-line: rgba(255, 42, 85, 0.55);
+}
+
+body.theme-cyberpunk #wpm-display {
+    color: var(--cp-cyan);
+}
+
+body.theme-cyberpunk #accuracy-display {
+    color: var(--cp-phos);
+}
+
+body.theme-cyberpunk #time-display {
+    color: var(--cp-amber);
+}
+
+body.theme-cyberpunk .stat-label {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+}
+
+/* ---------- Botones ---------- */
+body.theme-cyberpunk .btn,
+body.theme-cyberpunk .btn-practice-start,
+body.theme-cyberpunk .btn-tutor-start {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 400;
+}
+
+body.theme-cyberpunk .btn-primary {
+    --cp-line: var(--cp-cyan);
+    --bg-card: rgba(0, 240, 255, 0.12);
+    color: var(--cp-cyan);
+}
+
+body.theme-cyberpunk .btn-primary:hover {
+    --bg-card: var(--cp-cyan);
+    color: #000;
+}
+
+body.theme-cyberpunk .btn-secondary {
+    --cp-line: var(--cp-phos);
+    --bg-card: rgba(57, 255, 136, 0.1);
+    color: var(--cp-phos);
+}
+
+body.theme-cyberpunk .btn-secondary:hover {
+    --bg-card: var(--cp-phos);
+    color: #000;
+}
+
+body.theme-cyberpunk .btn-ghost {
+    --bg-card: transparent;
+    color: var(--text-secondary);
+}
+
+body.theme-cyberpunk .btn-ghost:hover {
+    --bg-card: rgba(0, 240, 255, 0.08);
+    color: var(--cp-cyan);
+}
+
+body.theme-cyberpunk .btn-practice-start {
+    --cp-line: var(--cp-amber);
+    --bg-card: rgba(255, 210, 63, 0.08);
+    color: var(--cp-amber);
+}
+
+body.theme-cyberpunk .btn-practice-start:hover {
+    --bg-card: var(--cp-amber);
+    color: #000;
+}
+
+body.theme-cyberpunk .btn-tutor-start {
+    --cp-line: var(--cp-phos);
+    --bg-card: rgba(57, 255, 136, 0.08);
+    color: var(--cp-phos);
+}
+
+body.theme-cyberpunk .btn-tutor-start:hover {
+    --bg-card: var(--cp-phos);
+    color: #000;
+}
+
+body.theme-cyberpunk .btn-diff {
+    --bg-card: transparent;
+}
+
+body.theme-cyberpunk .btn-diff:hover,
+body.theme-cyberpunk .btn-diff.active {
+    --cp-line: var(--cp-cyan);
+    --bg-card: rgba(0, 240, 255, 0.12);
+    color: var(--cp-cyan);
+}
+
+body.theme-cyberpunk .btn-diff.diff-hardcore.active {
+    --cp-line: var(--cp-red);
+    --bg-card: rgba(255, 42, 85, 0.14);
+    color: var(--cp-red);
+}
+
+/* ---------- Campos de texto ---------- */
+body.theme-cyberpunk .text-input,
+body.theme-cyberpunk .typing-input {
+    --bg-card: #000;
+    color: var(--cp-phos);
+    caret-color: var(--cp-cyan);
+}
+
+body.theme-cyberpunk .text-input:focus,
+body.theme-cyberpunk .typing-input:focus {
+    --cp-line: var(--cp-cyan);
+    outline: none;
+}
+
+body.theme-cyberpunk .typing-input.has-error {
+    --cp-line: var(--cp-red);
+    animation: none;
+}
+
+body.theme-cyberpunk .typing-input.on-fire-border {
+    --cp-line: var(--cp-phos) !important;
+    border-color: var(--cp-phos) !important;
+    box-shadow: none !important;
+}
+
+body.theme-cyberpunk .typing-card.on-fire {
+    border-color: var(--cp-phos) !important;
+    box-shadow: none !important;
+}
+
+/* ---------- Texto a escribir ---------- */
+body.theme-cyberpunk #text-display {
+    font-size: 1.2rem;
+    letter-spacing: 0.06em;
+    scrollbar-color: var(--cp-cyan) transparent;
+}
+
+body.theme-cyberpunk #text-display::-webkit-scrollbar-thumb {
+    background: var(--cp-cyan);
+}
+
+/* Sin transición: la letra "desencripta" al instante (el destello lo pone el JS) */
+body.theme-cyberpunk #text-display .char {
+    transition: none;
+}
+
+/* Letra por escribir: parece código cifrado (el JS cambia el glifo; aquí solo el color apagado) */
+body.theme-cyberpunk #text-display .char.char-pending {
+    color: var(--cp-pending, #2f7f6e);
+}
+
+/* Las próximas letras (las que toca escribir ahora) se leen claro: texto real, más brillante */
+body.theme-cyberpunk #text-display .char.char-pending.cp-read {
+    color: #8fe9d3;
+}
+
+/* Letra descifrada: verde fósforo */
+body.theme-cyberpunk #text-display .char.char-correct {
+    color: var(--cp-phos);
+}
+
+/* Con la racha la app fuerza su verde; aquí se mantiene el fósforo del tema */
+body.theme-cyberpunk #text-display.on-fire .char.char-correct {
+    color: var(--cp-phos) !important;
+}
+
+/* Error: rojo con subrayado (sin sombras por letra: el glitch cromático lo hace el JS sobre todo el bloque) */
+body.theme-cyberpunk #text-display .char.char-error {
+    color: var(--cp-red);
+    background-color: rgba(255, 42, 85, 0.18);
+    text-decoration: underline;
+    text-decoration-color: var(--cp-red);
+}
+
+/* ---------- Combo ---------- */
+body.theme-cyberpunk #combo-stat-card {
+    --cp-line: rgba(57, 255, 136, 0.55);
+}
+
+body.theme-cyberpunk .combo-highlight {
+    color: var(--cp-phos);
+    text-shadow: none;
+}
+
+/* ---------- Barra de progreso: segmentada como un buffer de datos ---------- */
+body.theme-cyberpunk .progress-bar-container {
+    border: 1px solid var(--cp-line);
+    border-radius: 0;
+    background: #000;
+}
+
+body.theme-cyberpunk .progress-bar-fill {
+    border-radius: 0;
+    box-shadow: none;
+    background: repeating-linear-gradient(90deg, var(--cp-phos) 0 6px, transparent 6px 8px);
+}
+
+body.theme-cyberpunk .progress-bar-fill::after {
+    display: none;
+}
+
+body.theme-cyberpunk .progress-text {
+    color: var(--cp-phos);
+}
+
+/* ---------- Menú de temas ---------- */
+body.theme-cyberpunk .theme-dropdown {
+    --cp-line: rgba(0, 240, 255, 0.7);
+    --bg-card: #000;
+}
+
+/* Miniatura del menú */
+.swatch-cyberpunk {
+    background:
+        repeating-linear-gradient(to bottom, rgba(0, 255, 200, 0.35) 0 1px, transparent 1px 3px),
+        linear-gradient(135deg, #000 40%, #00f0ff 40% 55%, #39ff88 55%);
+    box-shadow: inset 0 0 0 1px #00f0ff;
+}
+
+/* ---------- Efectos (los crea themes/cyberpunk.js) ---------- */
+.cp-fx-flash {
+    will-change: opacity;
+}
+
+/* ---------- Accesibilidad: sin movimiento extra ---------- */
+@media (prefers-reduced-motion: reduce) {
+    body.theme-cyberpunk::after {
+        animation: none;
+        display: none;
+    }
+}
+
+/* El botón de empezar tiene el padding vertical en 0 (estilo en línea): se le da cuerpo */
+body.theme-cyberpunk #start-btn {
+    min-height: 40px;
+}
+
+
+/* =====================================================
+   Detalles extra: títulos, logo, tarjetas
+   ===================================================== */
+body.theme-cyberpunk .card-header h2::before,
+body.theme-cyberpunk .results-title::before {
+    content: '// ';
+    color: var(--cp-mag);
+}
+
+body.theme-cyberpunk .card-description {
+    color: var(--text-secondary);
+}
+
+/* Logo: parpadeo de interferencia cada pocos segundos (solo el título del encabezado) */
+body.theme-cyberpunk .logo-text {
+    animation: cp-logo-glitch 6s steps(1, end) infinite;
+}
+
+@keyframes cp-logo-glitch {
+
+    0%,
+    92%,
+    100% {
+        transform: none;
+        text-shadow: none;
+    }
+
+    93% {
+        transform: translateX(-3px) skewX(-8deg);
+        text-shadow: 3px 0 rgba(255, 43, 214, 0.9), -3px 0 rgba(0, 240, 255, 0.9);
+    }
+
+    95% {
+        transform: translateX(3px) skewX(6deg);
+        text-shadow: -3px 0 rgba(255, 43, 214, 0.9), 3px 0 rgba(0, 240, 255, 0.9);
+    }
+
+    97% {
+        transform: translateX(-1px);
+        text-shadow: 2px 0 rgba(255, 43, 214, 0.7), -2px 0 rgba(0, 240, 255, 0.7);
+    }
+}
+
+/* Cursor de terminal tras el eslogan */
+body.theme-cyberpunk .tagline::after {
+    content: '▮';
+    margin-left: 6px;
+    color: var(--cp-phos);
+    animation: cp-caret 1s steps(1, end) infinite;
+}
+
+@keyframes cp-caret {
+    50% {
+        opacity: 0;
+    }
+}
+
+/* Combo: medidor segmentado (se llena con la racha; lo escribe themes/cyberpunk.js en --cp-fill) */
+body.theme-cyberpunk #combo-stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+body.theme-cyberpunk #combo-stat-card::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    right: 22px;
+    bottom: 8px;
+    height: 5px;
+    background:
+        linear-gradient(90deg, var(--cp-phos) calc(var(--cp-fill, 0) * 100%), rgba(57, 255, 136, 0.12) calc(var(--cp-fill, 0) * 100%));
+    -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 8px, transparent 8px 11px);
+    mask-image: repeating-linear-gradient(90deg, #000 0 8px, transparent 8px 11px);
+}
+
+/* Racha = OVERCLOCK: el borde de la caja de texto pulsa entre cian y magenta */
+body.theme-cyberpunk .typing-card.cp-overclock {
+    animation: cp-overclock 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes cp-overclock {
+    from {
+        --cp-line: rgba(57, 255, 136, 0.85);
+        border-color: rgba(57, 255, 136, 0.9);
+    }
+
+    to {
+        --cp-line: rgba(255, 43, 214, 0.9);
+        border-color: rgba(255, 43, 214, 0.95);
+    }
+}
+
+/* Letra actual: bloque de terminal */
+body.theme-cyberpunk #text-display .char.char-current {
+    color: #000;
+    background-color: var(--cp-cyan);
+}
+
+/* =====================================================
+   Ambiente: ciudad, sol sintético, rejilla y lluvia de datos
+   (capa fija detrás del contenido; solo se anima transform)
+   ===================================================== */
+.cp-fx {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: linear-gradient(to bottom, #000 0%, #0a0418 55%, #240a34 82%, #3b0d3f 100%);
+}
+
+.cp-sun {
+    position: absolute;
+    left: 50%;
+    bottom: 17vh;
+    width: min(46vw, 520px);
+    aspect-ratio: 1;
+    margin-left: calc(min(46vw, 520px) / -2);
+    border-radius: 50%;
+    background: linear-gradient(to bottom, #ffd23f 0%, #ff7a3d 38%, #ff2bd6 72%, #6a1bff 100%);
+    opacity: 0.42;
+    -webkit-mask-image: linear-gradient(#000 0 52%, transparent 52% 56%, #000 56% 63%, transparent 63% 68%, #000 68% 75%, transparent 75% 81%, #000 81% 89%, transparent 89% 95%, #000 95%);
+    mask-image: linear-gradient(#000 0 52%, transparent 52% 56%, #000 56% 63%, transparent 63% 68%, #000 68% 75%, transparent 75% 81%, #000 81% 89%, transparent 89% 95%, #000 95%);
+}
+
+.cp-city {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 17vh;
+    height: min(46vh, 460px);
+    background: url('cyberpunk-city.svg') center bottom / auto 100% repeat-x;
+    opacity: 0.85;
+}
+
+.cp-floor {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 17vh;
+    overflow: hidden;
+    perspective: 260px;
+    background: linear-gradient(to bottom, #12031c, #000);
+    border-top: 1px solid rgba(255, 43, 214, 0.7);
+    -webkit-mask-image: linear-gradient(to top, transparent 0, #000 70%);
+    mask-image: linear-gradient(to top, transparent 0, #000 70%);
+}
+
+.cp-grid {
+    position: absolute;
+    left: -50%;
+    top: 0;
+    width: 200%;
+    height: 400%;
+    transform-origin: 50% 0;
+    transform: rotateX(72deg) translateY(0);
+    background:
+        repeating-linear-gradient(90deg, rgba(255, 43, 214, 0.7) 0 1px, transparent 1px 64px),
+        repeating-linear-gradient(0deg, rgba(0, 240, 255, 0.6) 0 1px, transparent 1px 64px);
+    animation: cp-grid-move 1.8s linear infinite;
+    will-change: transform;
+}
+
+@keyframes cp-grid-move {
+    to {
+        transform: rotateX(72deg) translateY(64px);
+    }
+}
+
+.cp-rain {
+    position: absolute;
+    inset: 0;
+}
+
+.cp-rain-col {
+    position: absolute;
+    top: 0;
+    width: 14px;
+    font: 12px/1.15 'Share Tech Mono', 'JetBrains Mono', monospace;
+    white-space: pre;
+    color: var(--cp-phos, #39ff88);
+    opacity: 0.16;
+    transform: translateY(-100%);
+    animation: cp-rain 16s linear infinite;
+    will-change: transform;
+}
+
+@keyframes cp-rain {
+    to {
+        transform: translateY(100vh);
+    }
+}
+
+/* =====================================================
+   HUD de terminal (esquinas de la pantalla)
+   ===================================================== */
+.cp-hud {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    font: 11px/1.45 'Share Tech Mono', 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #5fe0c4;
+}
+
+.cp-br {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border: 0 solid var(--cp-cyan, #00f0ff);
+    opacity: 0.8;
+}
+
+.cp-br-tl {
+    left: 10px;
+    top: 10px;
+    border-width: 2px 0 0 2px;
+}
+
+.cp-br-tr {
+    right: 10px;
+    top: 10px;
+    border-width: 2px 2px 0 0;
+}
+
+.cp-br-bl {
+    left: 10px;
+    bottom: 10px;
+    border-width: 0 0 2px 2px;
+}
+
+.cp-br-br {
+    right: 10px;
+    bottom: 10px;
+    border-width: 0 2px 2px 0;
+}
+
+.cp-hud-box {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    max-width: 200px;
+}
+
+.cp-hud-box b {
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--cp-cyan, #00f0ff);
+}
+
+.cp-hud-box span {
+    color: #4aa896;
+}
+
+.cp-hud-tl {
+    left: 26px;
+    top: 24px;
+}
+
+.cp-hud-tr {
+    right: 26px;
+    top: 24px;
+    text-align: right;
+    align-items: flex-end;
+}
+
+.cp-hud-tr em {
+    font-style: normal;
+    color: var(--cp-phos, #39ff88);
+}
+
+.cp-hud-bl {
+    left: 26px;
+    bottom: 26px;
+    width: 220px;
+}
+
+.cp-log {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    font-size: 10.5px;
+    color: #4aa896;
+    text-transform: none;
+}
+
+.cp-log div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cp-log .is-sys {
+    color: var(--cp-cyan, #00f0ff);
+}
+
+.cp-log .is-ok {
+    color: var(--cp-phos, #39ff88);
+}
+
+.cp-log .is-warn {
+    color: var(--cp-red, #ff2a55);
+}
+
+.cp-hud-br {
+    right: 26px;
+    bottom: 26px;
+    width: 150px;
+    text-align: right;
+}
+
+.cp-status {
+    margin-bottom: 3px;
+    color: var(--cp-phos, #39ff88) !important;
+}
+
+.cp-status.is-warn {
+    color: var(--cp-red, #ff2a55) !important;
+}
+
+.cp-status.is-ok {
+    color: var(--cp-mag, #ff2bd6) !important;
+}
+
+.cp-meter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cp-meter u {
+    text-decoration: none;
+    width: 30px;
+    text-align: left;
+    color: #4aa896;
+}
+
+.cp-meter s {
+    flex: 1;
+    height: 4px;
+    background: rgba(0, 240, 255, 0.14);
+    overflow: hidden;
+}
+
+.cp-meter q {
+    display: block;
+    height: 100%;
+    background: var(--cp-cyan, #00f0ff);
+    transform-origin: 0 50%;
+    transform: scaleX(0.5);
+    transition: transform 0.9s ease-out;
+}
+
+.cp-hud.is-overclock .cp-meter q {
+    background: var(--cp-mag, #ff2bd6);
+}
+
+/* HUD solo cuando hay margen a los lados del contenido */
+@media (max-width: 1180px) {
+
+    .cp-hud-box,
+    .cp-br {
+        display: none;
+    }
+}
+
+/* Parpadeo rojo de pantalla al fallar */
+.cp-alert {
+    position: fixed;
+    inset: 0;
+    z-index: 9996;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(ellipse at center, transparent 45%, rgba(255, 42, 85, 0.55) 100%);
+}
+
+/* Cartel de fin de partida */
+.cp-banner {
+    position: fixed;
+    left: 50%;
+    top: 42%;
+    z-index: 9996;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    pointer-events: none;
+    padding: 14px 34px;
+    font: 400 clamp(1.6rem, 6vw, 3.4rem)/1 'Share Tech Mono', 'JetBrains Mono', monospace;
+    letter-spacing: 0.18em;
+    white-space: nowrap;
+    background: rgba(0, 0, 0, 0.82);
+    border: 1px solid currentColor;
+    clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+}
+
+.cp-banner.is-good {
+    color: var(--cp-phos, #39ff88);
+    text-shadow: 3px 0 rgba(255, 43, 214, 0.7), -3px 0 rgba(0, 240, 255, 0.7);
+}
+
+.cp-banner.is-bad {
+    color: var(--cp-red, #ff2a55);
+    text-shadow: 3px 0 rgba(0, 240, 255, 0.7), -3px 0 rgba(255, 43, 214, 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .cp-grid,
+    .cp-rain-col,
+    body.theme-cyberpunk .logo-text,
+    body.theme-cyberpunk .tagline::after,
+    body.theme-cyberpunk .typing-card.cp-overclock {
+        animation: none;
+    }
+
+    .cp-rain {
+        display: none;
+    }
+}
+
+/* Viñeta: oscurece el centro de la escena para que el contenido se lea limpio */
+.cp-fx::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 48% 70% at 50% 45%, rgba(0, 0, 0, 0.6), transparent 100%);
+}

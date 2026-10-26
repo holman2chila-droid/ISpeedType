@@ -3719,6 +3719,12 @@ body.deadzone-active .glass-card.typing-card {
 .st-reset:hover:not(:disabled) { background: var(--color-error-bg); }
 .st-reset:disabled { opacity: 0.35; cursor: not-allowed; }
 
+.achievements-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
 /* --- Responsive --- */
 @media (max-width: 720px) {
     .stats-panel { padding: 18px; max-height: 92vh; }

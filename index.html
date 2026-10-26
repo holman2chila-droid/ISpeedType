@@ -50,11 +50,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="online.css">
     <link rel="stylesheet" href="themes/immersive.css">
     <link rel="stylesheet" href="themes/graffiti.css">
     <link rel="stylesheet" href="themes/manga.css">
     <link rel="stylesheet" href="themes/deepweb.css">
     <link rel="stylesheet" href="themes/typewriter.css">
+    <link rel="stylesheet" href="themes/cyberpunk.css">
 </head>
 <body>
     <div id="lang-announcer" class="sr-only" role="status" aria-live="polite"></div>
@@ -158,6 +160,10 @@
                                     <button type="button" class="immersive-option hidden" data-immersive="typewriter" aria-pressed="false">
                                         <span class="theme-swatch swatch-typewriter"></span>
                                         <span data-i18n="ui.immersive-typewriter">Máquina de escribir</span>
+                                    </button>
+                                    <button type="button" class="immersive-option hidden" data-immersive="cyberpunk" aria-pressed="false">
+                                        <span class="theme-swatch swatch-cyberpunk"></span>
+                                        <span data-i18n="ui.immersive-cyberpunk">Cyberpunk (Terminal 2077)</span>
                                     </button>
                                 </div>
                                 <button type="button" class="immersive-sound" id="immersive-sound" aria-pressed="true">
@@ -825,6 +831,10 @@
             <div class="achievements-grid" id="achievements-grid">
                 <!-- Dynamically rendered via JS -->
             </div>
+
+            <div class="achievements-footer">
+                <button type="button" data-i18n="ui.achievements-reset" class="st-reset" id="achievements-reset">Reiniciar logros</button>
+            </div>
         </div>
     </div>
 
@@ -865,6 +875,8 @@
     <script src="themes/manga.js"></script>
     <script src="themes/deepweb.js"></script>
     <script src="themes/typewriter.js"></script>
+    <script src="themes/cyberpunk.js"></script>
     <script src="app.js"></script>
+    <script src="online.js"></script>
 </body>
 </html>

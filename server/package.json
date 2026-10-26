@@ -1,0 +1,14 @@
+{
+  "name": "ispeedtype-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:texts": "node scripts/build-texts.mjs",
+    "test": "node --test test/*.test.mjs",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.152.0"
+  }
+}
