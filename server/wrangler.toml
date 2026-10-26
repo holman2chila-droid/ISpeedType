@@ -1,0 +1,25 @@
+name = "ispeedtype-api"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+[vars]
+# Orígenes que pueden usar la API desde el navegador (separados por coma).
+# El de GitHub Pages es el sitio real; los de localhost son para probar en local.
+ALLOWED_ORIGINS = "https://holman2chila-droid.github.io,http://localhost:8080,http://127.0.0.1:8080"
+
+[[durable_objects.bindings]]
+name = "LEADERBOARD"
+class_name = "Leaderboard"
+
+[[durable_objects.bindings]]
+name = "MATCHMAKER"
+class_name = "Matchmaker"
+
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "Room"
+
+# El plan gratuito solo permite Durable Objects con SQLite
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Leaderboard", "Matchmaker", "Room"]

@@ -213,6 +213,9 @@
     // ===== Estadísticas por tecla de la partida en curso: { letra: [pulsaciones, fallos] } =====
     let sessionKeys = {};
 
+    // ===== Modo online (online.js): recibe cada pulsación para mandarla al servidor =====
+    let onlineHook = null;     // { push(ch), pop(), finish(), cancel() } o null
+
     function trackKey(expectedChar, ok) {
         if (!expectedChar || expectedChar === ' ' || expectedChar === '\n') return;
         const k = expectedChar.toLowerCase();
@@ -1139,9 +1142,11 @@
         if (idx < dirtyFrom) dirtyFrom = idx;
         if (consecCorrect === idx && ch === characters[idx]) consecCorrect++;
         typedChars.push(ch);
+        if (onlineHook) onlineHook.push(ch);
     }
 
     function popTyped() {
+        if (onlineHook && typedChars.length > 0) onlineHook.pop();
         typedChars.pop();
         const len = typedChars.length;
         if (len < dirtyFrom) dirtyFrom = len;
@@ -2345,6 +2350,7 @@
         isFinished = true;
         clearInterval(timerInterval);
         fxEnd('finish');
+        if (onlineHook) { const h = onlineHook; onlineHook = null; h.finish(); }
 
         // Si la última palabra no tuvo errores, contarla en la racha
         if (!currentWordHadError) {
@@ -2434,6 +2440,7 @@
 
     // ===== Restart Test =====
     function restartTest() {
+        cancelOnline();
         stopFadeLoop();
         clearStorm();
         deactivateFire();
@@ -2444,6 +2451,7 @@
 
     // ===== Go to Setup =====
     function goToSetup() {
+        cancelOnline();
         stopFadeLoop();
         clearStorm();
         deactivateFire();
@@ -2945,6 +2953,34 @@
         if (window.SpeedStats && window.SpeedStats.refreshLanguage) window.SpeedStats.refreshLanguage();
     }
     window.I18N.onChange(refreshDynamicLanguage);
+
+    // ===== API para el modo online (online.js) =====
+    // El texto lo elige el servidor; aquí solo se arranca la prueba normal con él,
+    // sin modos especiales, y se engancha el registro de pulsaciones.
+    function cancelOnline() {
+        if (onlineHook) { const h = onlineHook; onlineHook = null; h.cancel(); }
+    }
+    window.ISpeedTypeOnline = {
+        start(text, hook) {
+            cancelOnline();
+            isLivesMode = isFadeMode = isStormMode = isDeadzoneMode = false;
+            [livesModeSwitch, fadeModeSwitch, stormModeSwitch, deadzoneModeSwitch].forEach((sw) => { if (sw) sw.checked = false; });
+            [difficultyWrapper, fadeSpeedWrapper, stormDiffWrapper, deadzoneDiffWrapper].forEach((w) => { if (w) w.classList.add('hidden'); });
+            if (isTutorMode) exitTutorMode();
+            hideAntiCheatWarning();
+            textInput.value = text;
+            isEligibleForAchievements = true;
+            startTest();
+            onlineHook = hook;   // después de startTest: el reinicio interno no lo cancela
+        },
+        // Sale de la partida en curso sin avisar al hook (lo usa online.js al terminar un 1v1)
+        stop() {
+            onlineHook = null;
+            if (!setupSection.classList.contains('hidden')) return;
+            volverAlLobby();
+        },
+        isTyping() { return !typingSection.classList.contains('hidden') && !isFinished; }
+    };
 
     // ===== Start App =====
     init();
