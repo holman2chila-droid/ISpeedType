@@ -1,0 +1,839 @@
+/* ===================================================
+   ISpeedType — Tema inmersivo: ESPACIO PROFUNDO (Viaje estelar)
+   Fondo 3D en WebGL (themes/space.js) + interfaz de cabina holográfica.
+   Todo va dentro de body.theme-space: sin la clase, esto no afecta a nada.
+
+   Reglas de rendimiento:
+     - SIN backdrop-filter: el fondo cambia cada fotograma y el navegador
+       tendría que recalcular el desenfoque continuamente;
+     - sin text-shadow ni animaciones por letra en el texto principal;
+     - los paneles son semitransparentes pero planos (barato de componer).
+   =================================================== */
+
+body.theme-space {
+    --sp-cyan: #4de1ff;
+    --sp-cyan-deep: #1b9fc2;
+    --sp-violet: #9b7bff;
+    --sp-magenta: #ff4fd8;
+    --sp-gold: #ffc65a;
+    --sp-red: #ff4d6a;
+    --sp-ink: #e9f1ff;
+    --sp-panel: rgba(7, 10, 30, 0.8);
+    --sp-panel-solid: #070a1e;
+
+    --bg-primary: #03040d;
+    --bg-secondary: #070a1e;
+    --bg-card: rgba(7, 10, 30, 0.8);
+    --bg-card-hover: rgba(12, 17, 46, 0.9);
+    --bg-input: rgba(3, 5, 18, 0.9);
+
+    --text-primary: #e9f1ff;
+    --text-secondary: #a9b7dc;
+    --text-muted: #7584b0;
+
+    --accent-primary: #4de1ff;
+    --accent-primary-hover: #8aeaff;
+    --accent-glow: rgba(77, 225, 255, 0.35);
+    --accent-secondary: #9b7bff;
+    --accent-secondary-glow: rgba(155, 123, 255, 0.35);
+
+    --color-correct: #4de1ff;
+    --color-correct-bg: transparent;
+    --color-error: #ff4d6a;
+    --color-error-bg: rgba(255, 77, 106, 0.2);
+    --color-error-glow: rgba(255, 77, 106, 0.4);
+    --color-current: #ffffff;
+    --color-current-bg: rgba(77, 225, 255, 0.3);
+    --color-pending: #9aa8d0;
+
+    --border-color: rgba(77, 225, 255, 0.28);
+    --border-color-hover: rgba(77, 225, 255, 0.7);
+
+    --glow-1: transparent;
+    --glow-2: transparent;
+    --glow-3: transparent;
+
+    --font-sans: 'Exo 2', 'Segoe UI', system-ui, sans-serif;
+    --font-mono: 'Exo 2', 'Segoe UI', system-ui, sans-serif;
+    --sp-display: 'Orbitron', 'Eurostile', 'Segoe UI', sans-serif;
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+
+    background: #02030a;
+    color: var(--text-primary);
+    transition: none;
+}
+
+/* Canvas WebGL: detrás de todo */
+.sp-canvas {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    display: block;
+}
+
+/* Si no hay WebGL: degradado estático de nebulosa */
+body.theme-space.space-nogl {
+    background:
+        radial-gradient(ellipse at 20% 15%, rgba(155, 123, 255, 0.35), transparent 55%),
+        radial-gradient(ellipse at 85% 80%, rgba(255, 79, 216, 0.25), transparent 55%),
+        radial-gradient(ellipse at 60% 30%, rgba(77, 225, 255, 0.18), transparent 50%),
+        #02030a;
+}
+
+body.theme-space .bg-glow {
+    display: none;
+}
+
+body.theme-space .glass-card,
+body.theme-space .glass-card-mini,
+body.theme-space .theme-dropdown,
+body.theme-space .theme-toggle-btn,
+body.theme-space .achievement-toast {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* ---------- Encabezado ---------- */
+body.theme-space .logo-text {
+    font-family: var(--sp-display);
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sp-ink);
+}
+
+body.theme-space .logo-accent {
+    color: var(--sp-cyan);
+    background: none;
+    -webkit-text-fill-color: currentColor;
+}
+
+body.theme-space .logo-icon,
+body.theme-space .footer-logo-icon {
+    background: radial-gradient(circle at 35% 30%, #1d2a66, #070a1e 70%);
+    border: 2px solid var(--sp-cyan);
+    border-radius: 50%;
+    color: var(--sp-cyan);
+    box-shadow: 0 0 0 3px rgba(77, 225, 255, 0.15), 0 0 18px rgba(77, 225, 255, 0.45);
+}
+
+body.theme-space .logo-icon svg,
+body.theme-space .footer-logo-icon svg {
+    stroke: var(--sp-cyan);
+}
+
+body.theme-space .tagline {
+    font-family: var(--sp-display);
+    font-size: 0.74rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+body.theme-space .theme-toggle-btn,
+body.theme-space .achievements-toggle-btn,
+body.theme-space .lang-switch,
+body.theme-space .stats-toggle-btn {
+    background: var(--sp-panel);
+    color: var(--sp-ink);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-family: var(--sp-display);
+}
+
+body.theme-space .theme-toggle-btn:hover,
+body.theme-space .achievements-toggle-btn:hover,
+body.theme-space .stats-toggle-btn:hover {
+    border-color: var(--sp-cyan);
+    box-shadow: 0 0 14px rgba(77, 225, 255, 0.35);
+}
+
+/* ---------- Paneles: cristal de cabina con esquinas-marco ---------- */
+body.theme-space .glass-card {
+    position: relative;
+    background:
+        linear-gradient(180deg, rgba(77, 225, 255, 0.07), transparent 22%),
+        var(--sp-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0 0 0 1px rgba(2, 3, 10, 0.8), 0 18px 44px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Esquinas tipo visor */
+body.theme-space .glass-card::before,
+body.theme-space .glass-card::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    pointer-events: none;
+    border: 0 solid var(--sp-cyan);
+    opacity: 0.9;
+}
+
+body.theme-space .glass-card::before {
+    left: -1px;
+    top: -1px;
+    border-width: 3px 0 0 3px;
+    border-top-left-radius: 14px;
+}
+
+body.theme-space .glass-card::after {
+    right: -1px;
+    bottom: -1px;
+    border-width: 0 3px 3px 0;
+    border-bottom-right-radius: 14px;
+}
+
+body.theme-space .glass-card:hover {
+    border-color: var(--border-color-hover);
+}
+
+body.theme-space .typing-card {
+    border-color: rgba(155, 123, 255, 0.5);
+}
+
+body.theme-space .typing-card::before,
+body.theme-space .typing-card::after {
+    border-color: var(--sp-violet);
+}
+
+body.theme-space .glass-card-mini {
+    background: var(--sp-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+body.theme-space .card-header h2,
+body.theme-space .results-title {
+    font-family: var(--sp-display);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sp-ink);
+}
+
+body.theme-space .card-description {
+    color: var(--text-secondary);
+}
+
+body.theme-space .card-description kbd {
+    background: rgba(77, 225, 255, 0.1);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    color: var(--sp-cyan);
+    font-family: var(--sp-display);
+}
+
+body.theme-space .card-icon,
+body.theme-space .results-badge {
+    background: linear-gradient(135deg, rgba(77, 225, 255, 0.2), rgba(155, 123, 255, 0.25));
+    border: 1px solid var(--sp-cyan);
+    border-radius: 12px;
+    color: var(--sp-cyan);
+}
+
+/* Estadísticas: cada una con su color de instrumento */
+body.theme-space .stat-card {
+    border-top: 2px solid var(--sp-cyan);
+}
+
+body.theme-space .stat-card:nth-child(2) {
+    border-top-color: #5dffa6;
+}
+
+body.theme-space .stat-card:nth-child(3) {
+    border-top-color: var(--sp-violet);
+}
+
+body.theme-space .stat-card:nth-child(4) {
+    border-top-color: var(--sp-red);
+}
+
+body.theme-space #wpm-display {
+    color: var(--sp-cyan);
+}
+
+body.theme-space #accuracy-display {
+    color: #5dffa6;
+}
+
+body.theme-space #time-display {
+    color: var(--sp-violet);
+}
+
+body.theme-space #errors-display {
+    color: var(--sp-red);
+}
+
+body.theme-space .stat-value,
+body.theme-space .stat-card .stat-value {
+    font-family: var(--sp-display);
+    font-weight: 700;
+}
+
+body.theme-space .stat-label {
+    font-family: var(--sp-display);
+    font-size: 0.66rem;
+    letter-spacing: 0.2em;
+    color: var(--text-secondary);
+}
+
+/* ---------- Botones ---------- */
+body.theme-space .btn,
+body.theme-space .btn-practice-start,
+body.theme-space .btn-tutor-start {
+    border-radius: 10px;
+    font-family: var(--sp-display);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+body.theme-space .btn::after {
+    display: none;
+}
+
+body.theme-space .btn:hover,
+body.theme-space .btn-practice-start:hover,
+body.theme-space .btn-tutor-start:hover {
+    transform: translateY(-2px);
+}
+
+body.theme-space .btn:active {
+    transform: translateY(1px);
+}
+
+body.theme-space .btn-primary {
+    background: linear-gradient(135deg, #1b9fc2, #5b4bd6);
+    border: 1px solid var(--sp-cyan);
+    color: #fff;
+    box-shadow: 0 0 18px rgba(77, 225, 255, 0.35);
+}
+
+body.theme-space .btn-primary:hover {
+    box-shadow: 0 0 28px rgba(77, 225, 255, 0.65);
+}
+
+body.theme-space .btn-secondary {
+    background: linear-gradient(135deg, #7b3fe0, #d13bb5);
+    border: 1px solid var(--sp-magenta);
+    color: #fff;
+    box-shadow: 0 0 16px rgba(255, 79, 216, 0.3);
+}
+
+body.theme-space .btn-ghost {
+    background: rgba(77, 225, 255, 0.06);
+    border: 1px solid var(--border-color);
+    color: var(--sp-ink);
+}
+
+body.theme-space .btn-ghost:hover {
+    border-color: var(--sp-cyan);
+    background: rgba(77, 225, 255, 0.14);
+}
+
+body.theme-space .btn-practice-start {
+    background: rgba(155, 123, 255, 0.18);
+    border: 1px solid var(--sp-violet);
+    color: var(--sp-ink);
+}
+
+body.theme-space .btn-tutor-start {
+    background: rgba(77, 225, 255, 0.16);
+    border: 1px solid var(--sp-cyan);
+    color: var(--sp-ink);
+}
+
+body.theme-space .btn-diff {
+    background: rgba(77, 225, 255, 0.06);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-family: var(--sp-display);
+}
+
+body.theme-space .btn-diff:hover {
+    border-color: var(--sp-cyan);
+    color: var(--sp-ink);
+}
+
+body.theme-space .btn-diff.active {
+    background: rgba(77, 225, 255, 0.22);
+    border-color: var(--sp-cyan);
+    color: #fff;
+}
+
+body.theme-space .btn-diff.diff-hardcore.active {
+    background: rgba(255, 77, 106, 0.25);
+    border-color: var(--sp-red);
+}
+
+/* Interruptores */
+body.theme-space .slider {
+    background-color: #151b3f;
+    border: 1px solid var(--border-color);
+}
+
+body.theme-space .slider::before {
+    background-color: #8a98c9;
+}
+
+body.theme-space .switch-toggle input:checked+.slider {
+    background-color: rgba(77, 225, 255, 0.3);
+    border-color: var(--sp-cyan);
+}
+
+body.theme-space .switch-toggle input:checked+.slider::before {
+    background-color: var(--sp-cyan);
+    box-shadow: 0 0 10px var(--sp-cyan);
+}
+
+/* ---------- Campos ---------- */
+body.theme-space .text-input,
+body.theme-space .typing-input {
+    background: var(--bg-input);
+    color: var(--sp-ink);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    caret-color: var(--sp-cyan);
+    font-size: 1.05rem;
+}
+
+body.theme-space .text-input::placeholder,
+body.theme-space .typing-input::placeholder {
+    color: #6b7aa6;
+}
+
+body.theme-space .text-input:focus,
+body.theme-space .typing-input:focus {
+    border-color: var(--sp-cyan);
+    box-shadow: 0 0 0 3px rgba(77, 225, 255, 0.18);
+    outline: none;
+}
+
+body.theme-space .typing-input.has-error {
+    border-color: var(--sp-red);
+    box-shadow: 0 0 0 3px rgba(255, 77, 106, 0.25);
+    animation: none;
+}
+
+body.theme-space .typing-input.on-fire-border {
+    border-color: var(--sp-gold) !important;
+    box-shadow: 0 0 0 3px rgba(255, 198, 90, 0.3) !important;
+}
+
+body.theme-space .typing-card.on-fire {
+    border-color: var(--sp-gold) !important;
+}
+
+/* ---------- Texto a escribir ---------- */
+body.theme-space #text-display {
+    font-size: 1.4rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    scrollbar-color: var(--sp-cyan) transparent;
+}
+
+body.theme-space #text-display::-webkit-scrollbar-thumb {
+    background: var(--sp-cyan-deep);
+}
+
+body.theme-space #text-display .char {
+    transition: none;
+    border-radius: 3px;
+}
+
+body.theme-space #text-display .char.char-pending {
+    color: var(--color-pending);
+}
+
+body.theme-space #text-display .char.char-correct {
+    color: var(--sp-cyan);
+    background: transparent;
+}
+
+/* Con racha de fuego la app fuerza verde; aquí el combustible se vuelve oro */
+body.theme-space #text-display.on-fire .char.char-correct {
+    color: var(--sp-gold) !important;
+}
+
+body.theme-space #text-display .char.char-current {
+    color: #fff;
+    background-color: rgba(77, 225, 255, 0.3);
+}
+
+body.theme-space #text-display .char.char-error {
+    color: var(--sp-red);
+    background-color: var(--color-error-bg);
+    text-decoration: underline wavy var(--sp-red);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 4px;
+}
+
+/* ---------- Combo: barra de energía ---------- */
+body.theme-space #combo-stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+body.theme-space .combo-highlight {
+    color: var(--sp-gold);
+    text-shadow: none;
+}
+
+body.theme-space #combo-stat-card::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 8px;
+    height: 5px;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 198, 90, 0.5);
+    background: linear-gradient(90deg, var(--sp-gold) calc(var(--sp-fill, 0) * 100%), transparent calc(var(--sp-fill, 0) * 100%));
+}
+
+/* ---------- Barra de progreso: ruta de vuelo ---------- */
+body.theme-space .progress-bar-container {
+    height: 10px;
+    background: rgba(77, 225, 255, 0.08);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+body.theme-space .progress-bar-fill {
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--sp-violet), var(--sp-cyan));
+    box-shadow: 0 0 10px rgba(77, 225, 255, 0.6);
+}
+
+body.theme-space .progress-bar-fill::after {
+    display: none;
+}
+
+body.theme-space .progress-text {
+    font-family: var(--sp-display);
+    color: var(--sp-cyan);
+    font-weight: 700;
+}
+
+/* ---------- Avisos / cuenta atrás ---------- */
+body.theme-space .practice-mode-banner {
+    background: rgba(155, 123, 255, 0.14);
+    border: 1px solid var(--sp-violet);
+    border-radius: 10px;
+    color: var(--sp-ink);
+}
+
+body.theme-space .countdown-overlay {
+    background: rgba(3, 5, 18, 0.9);
+    border: 1px solid var(--sp-cyan);
+    border-radius: 14px;
+    box-shadow: 0 0 40px rgba(77, 225, 255, 0.25), inset 0 0 60px rgba(77, 225, 255, 0.06);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+body.theme-space .countdown-number {
+    font-family: var(--sp-display);
+    background: none;
+    -webkit-text-fill-color: var(--sp-cyan);
+    color: var(--sp-cyan);
+    filter: none;
+}
+
+body.theme-space .countdown-label {
+    font-family: var(--sp-display);
+    background: rgba(77, 225, 255, 0.1);
+    border: 1px solid var(--sp-cyan);
+    color: var(--sp-ink);
+    box-shadow: none;
+}
+
+/* ---------- Menú de temas ---------- */
+body.theme-space .theme-dropdown {
+    background: var(--sp-panel-solid);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 18px rgba(77, 225, 255, 0.15);
+}
+
+body.theme-space .theme-option,
+body.theme-space .immersive-option {
+    color: var(--text-secondary);
+    border-radius: 8px;
+    font-family: var(--sp-display);
+    font-size: 0.74rem;
+}
+
+body.theme-space .theme-option:hover,
+body.theme-space .immersive-option:hover,
+body.theme-space .immersive-option:focus-visible {
+    background: rgba(77, 225, 255, 0.1);
+    color: var(--sp-ink);
+    border-color: var(--border-color-hover);
+}
+
+body.theme-space .immersive-option.active {
+    background: rgba(77, 225, 255, 0.16);
+    color: var(--sp-cyan);
+    border-color: var(--sp-cyan);
+}
+
+body.theme-space .immersive-sound {
+    border-radius: 8px;
+    border-color: var(--border-color);
+    font-family: var(--sp-display);
+}
+
+/* Miniatura del menú: planeta con anillo sobre nebulosa */
+.swatch-space {
+    background:
+        radial-gradient(circle at 36% 38%, #ffe2b0 0 12%, #4aa3d6 13% 34%, transparent 35%),
+        radial-gradient(ellipse at 30% 25%, rgba(155, 123, 255, 0.8), transparent 60%),
+        radial-gradient(ellipse at 80% 85%, rgba(255, 79, 216, 0.6), transparent 55%),
+        #03040d;
+    box-shadow: inset 0 0 0 2px #4de1ff;
+}
+
+body.theme-space .site-footer {
+    background: rgba(3, 5, 18, 0.85);
+    border-top: 1px solid var(--border-color);
+}
+
+/* =====================================================
+   HUD de la nave (se construye desde space.js)
+   ===================================================== */
+.sp-hud {
+    position: fixed;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    font-family: 'Exo 2', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* IA de a bordo (abajo a la izquierda) */
+.sp-comm {
+    position: absolute;
+    left: 16px;
+    bottom: 18px;
+    width: min(340px, 56vw);
+    padding: 10px 14px 12px;
+    background: rgba(7, 10, 30, 0.88);
+    border: 1px solid rgba(77, 225, 255, 0.5);
+    border-left: 4px solid var(--sp-cyan, #4de1ff);
+    border-radius: 4px 12px 12px 4px;
+    color: #e9f1ff;
+    opacity: 0;
+    transform: translateX(-16px);
+    transition: opacity 0.25s ease, transform 0.3s ease;
+}
+
+.sp-comm.is-on {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.sp-comm-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 4px;
+    font: 700 0.64rem/1 'Orbitron', 'Segoe UI', sans-serif;
+    letter-spacing: 0.22em;
+    color: #4de1ff;
+}
+
+.sp-comm-head b {
+    font-weight: 500;
+    color: #8190be;
+    letter-spacing: 0.16em;
+}
+
+.sp-comm-head i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #5dffa6;
+    box-shadow: 0 0 8px #5dffa6;
+}
+
+.sp-comm-msg {
+    font-size: 0.95rem;
+    line-height: 1.3;
+    font-weight: 500;
+}
+
+/* "Tecleado" de la línea al llegar un mensaje (solo clip-path: barato) */
+.sp-comm.is-on .sp-comm-msg {
+    animation: sp-type 0.7s steps(28, end) both;
+}
+
+@keyframes sp-type {
+    from {
+        clip-path: inset(0 100% 0 0);
+    }
+
+    to {
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+/* Velocímetro (abajo a la derecha) */
+.sp-gauge {
+    position: absolute;
+    right: 16px;
+    bottom: 14px;
+    width: 176px;
+    padding: 10px 12px 10px;
+    text-align: center;
+    background: rgba(7, 10, 30, 0.82);
+    border: 1px solid rgba(77, 225, 255, 0.4);
+    border-radius: 14px;
+}
+
+.sp-gauge svg {
+    display: block;
+    margin: 0 auto -34px;
+    overflow: visible;
+}
+
+.sp-arc-bg,
+.sp-arc {
+    fill: none;
+    stroke-width: 7;
+    stroke-linecap: round;
+}
+
+.sp-arc-bg {
+    stroke: rgba(77, 225, 255, 0.14);
+}
+
+.sp-arc {
+    stroke: #4de1ff;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 90;
+    transition: stroke-dashoffset 0.25s linear, stroke 0.3s ease;
+}
+
+.sp-gauge-num {
+    position: relative;
+    font: 900 1.5rem/1 'Orbitron', 'Segoe UI', sans-serif;
+    color: #e9f1ff;
+}
+
+.sp-gauge-num span {
+    margin-left: 2px;
+    font-size: 0.8rem;
+    color: #4de1ff;
+}
+
+.sp-gauge-label {
+    margin-top: 4px;
+    font: 700 0.58rem/1 'Orbitron', 'Segoe UI', sans-serif;
+    letter-spacing: 0.3em;
+    color: #8190be;
+}
+
+.sp-gauge-sector {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(77, 225, 255, 0.2);
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #cfd9f5;
+}
+
+.sp-gauge-dist {
+    margin-top: 2px;
+    font: 600 0.6rem/1.2 'Orbitron', 'Segoe UI', sans-serif;
+    letter-spacing: 0.14em;
+    color: #9b7bff;
+}
+
+.sp-hud.is-warp .sp-arc {
+    stroke: #ff4fd8;
+}
+
+.sp-hud.is-warp .sp-gauge {
+    border-color: rgba(255, 79, 216, 0.7);
+}
+
+.sp-hud.is-fire .sp-arc {
+    stroke: #ffc65a;
+}
+
+.sp-hud.is-fire .sp-gauge {
+    border-color: rgba(255, 198, 90, 0.8);
+}
+
+/* Cartel de eventos */
+.sp-banner {
+    position: fixed;
+    left: 50%;
+    top: 38%;
+    z-index: 9996;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    pointer-events: none;
+    padding: 14px 40px;
+    font: 900 clamp(1.3rem, 5vw, 2.5rem)/1.1 'Orbitron', 'Segoe UI', sans-serif;
+    letter-spacing: 0.3em;
+    white-space: nowrap;
+    text-align: center;
+    background: rgba(3, 5, 18, 0.94);
+    border-top: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+}
+
+.sp-banner.is-good {
+    color: #4de1ff;
+}
+
+.sp-banner.is-bad {
+    color: #ff4d6a;
+}
+
+@media (max-width: 760px) {
+    .sp-gauge {
+        width: 138px;
+        padding: 6px 8px;
+    }
+
+    .sp-gauge svg {
+        width: 110px;
+        height: 64px;
+        margin-bottom: -26px;
+    }
+
+    .sp-gauge-sector,
+    .sp-gauge-dist {
+        display: none;
+    }
+
+    .sp-comm {
+        width: min(250px, 50vw);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .sp-comm,
+    .sp-arc {
+        transition: none;
+    }
+
+    .sp-comm.is-on .sp-comm-msg {
+        animation: none;
+    }
+}

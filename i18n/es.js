@@ -19,6 +19,7 @@
     "ui.immersive-typewriter": "Máquina de escribir",
     "ui.immersive-kawaii": "Nube kawaii",
     "ui.immersive-greek": "Olimpo (mármol griego)",
+    "ui.immersive-space": "Espacio profundo (3D)",
     "ui.immersive-cyberpunk": "Cyberpunk (Terminal 2077)",
     "ui.immersive-halloween": "Ritual maldito",
     "dw.warn-title": "⚠ Advertencia: contenido de terror",
