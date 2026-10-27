@@ -4,9 +4,9 @@
 
    Es un tema analógico: casi todo es CSS. Aquí vive solo el sonido
    (sintetizado con Web Audio: no hay archivos de audio):
-     - cada tecla: el golpe metálico y seco de un martillo Underwood,
+     - cada tecla: chasquido seco del martillo contra el rodillo, con el marco vibrando y el rebote,
      - la barra espaciadora: un golpe más grave y sordo,
-     - el timbre ("¡Cling!") y el retorno de carro cuando la escritura salta
+     - el timbre ("¡ding!") y el retorno de carro cuando la escritura salta
        a la línea siguiente, y al terminar,
      - un fallo: el martillo se atasca (golpe doble y sordo).
 
@@ -30,55 +30,98 @@
 
     // ---------------------------------------------------
     // Voces
+    // Una máquina de verdad no suena a "bip" ni a teclado: es un chasquido seco y muy corto
+    // (el tipo de letra golpea el rodillo), con el marco metálico vibrando un instante, un golpe
+    // sordo del rodillo y, un poco después, el martillo que rebota al volver a su sitio.
     // ---------------------------------------------------
 
-    // Golpe de martillo: chasquido metálico + golpe seco del bastidor + rebote.
+    // Resonancia metálica que se apaga sola (un "modo" del marco / de la campanilla).
+    function ring(t0, f, gain, decay) {
+        const ctx = A.ctx;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(gain, t0 + 0.0012);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + decay);
+        o.connect(g);
+        g.connect(A.out);
+        o.start(t0);
+        o.stop(t0 + decay + 0.02);
+    }
+
+    // Golpe de martillo. k = fuerza (0.6 suave ... 1.3 fuerte).
     function strike(t0, k) {
-        const g = k || 1;
-        A.noiseHit(t0, { type: 'highpass', freq: rand(1800, 2600), q: 0.8, dur: 0.012, gain: 0.26 * g });
-        A.noiseHit(t0 + 0.003, { freq: rand(800, 1100), q: 1.2, dur: 0.032, gain: 0.12 * g });
-        A.tone(t0, { f0: rand(150, 195), f1: 80, dur: 0.065, gain: 0.3 * g });
-        A.tone(t0, { f0: rand(2300, 3100), dur: 0.05, gain: 0.03 * g, type: 'triangle' });
-        // el martillo vuelve a su sitio
-        A.noiseHit(t0 + rand(0.04, 0.052), { type: 'highpass', freq: 3200, dur: 0.006, gain: 0.08 * g });
+        const g = (k || 1) * rand(0.85, 1.1) * 1.9;
+        const d = rand(0.94, 1.07); // cada tecla suena un poco distinta
+        // 1) recorrido de la tecla: "tk" sordo justo antes
+        A.noiseHit(t0, { freq: 900 * d, q: 1.4, dur: 0.012, gain: 0.07 * g });
+        // 2) el chasquido: el tipo golpea el papel y el rodillo (muy corto, brillante)
+        const t = t0 + 0.011;
+        A.noiseHit(t, { type: 'highpass', freq: 1800 * d, q: 0.7, dur: 0.007, attack: 0.0006, gain: 0.5 * g });
+        A.noiseHit(t, { freq: 3100 * d, q: 1.6, dur: 0.02, attack: 0.0008, gain: 0.3 * g });
+        // 3) el marco metálico vibra un instante
+        ring(t, 1240 * d, 0.045 * g, 0.05);
+        ring(t, 2370 * d, 0.03 * g, 0.035);
+        ring(t, 4150 * d, 0.014 * g, 0.022);
+        // 4) golpe sordo del rodillo de goma
+        A.noiseHit(t, { type: 'lowpass', freq: 380, q: 0.7, dur: 0.04, attack: 0.001, gain: 0.34 * g });
+        A.tone(t, { f0: 175 * d, f1: 95, dur: 0.05, gain: 0.2 * g });
+        // 5) el martillo rebota al volver a su reposo
+        A.noiseHit(t + rand(0.048, 0.066), { freq: 2200 * d, q: 1.2, dur: 0.009, gain: 0.09 * g });
+        A.noiseHit(t + rand(0.07, 0.09), { type: 'highpass', freq: 3000, dur: 0.005, gain: 0.04 * g });
     }
 
-    // Barra espaciadora: un "thock" más grave y sordo.
+    // Barra espaciadora: el carro avanza un paso: "ka-clunk" más hueco y pesado.
     function spacebar(t0) {
-        A.tone(t0, { f0: rand(105, 125), f1: 58, dur: 0.12, gain: 0.4 });
-        A.noiseHit(t0, { type: 'lowpass', freq: 700, q: 0.7, dur: 0.065, gain: 0.3 });
-        A.noiseHit(t0, { type: 'highpass', freq: 2400, dur: 0.01, gain: 0.1 });
+        A.noiseHit(t0, { freq: 700, q: 1.2, dur: 0.014, gain: 0.144 });
+        const t = t0 + 0.012;
+        A.noiseHit(t, { type: 'lowpass', freq: 520, q: 0.8, dur: 0.075, attack: 0.002, gain: 0.828 });
+        A.tone(t, { f0: rand(120, 138), f1: 62, dur: 0.1, gain: 0.612 });
+        A.noiseHit(t, { type: 'highpass', freq: 2000, dur: 0.008, gain: 0.288 });
+        ring(t, 860, 0.03, 0.06);
+        // el trinquete del carro
+        A.noiseHit(t + 0.045, { freq: 3400, q: 2, dur: 0.008, gain: 0.126 });
     }
 
-    // Fallo: dos martillos chocan y se atascan.
+    // Fallo: dos martillos chocan y se atascan, con un traqueteo seco.
     function jam(t0) {
         strike(t0, 0.9);
-        strike(t0 + 0.028, 0.8);
-        A.tone(t0 + 0.01, { f0: 150, f1: 62, dur: 0.14, gain: 0.16, type: 'sawtooth' });
-        A.noiseHit(t0 + 0.01, { type: 'lowpass', freq: 520, q: 0.7, dur: 0.1, gain: 0.26 });
-    }
-
-    // Timbre mecánico: campanilla de acero con parciales no armónicos.
-    function bell(t0) {
-        const partials = [
-            [2480, 0.11, 1.15],
-            [3720, 0.055, 0.8],
-            [5840, 0.03, 0.45],
-            [1240, 0.05, 0.9]
-        ];
-        partials.forEach(function (p) {
-            A.tone(t0, { f0: p[0], dur: p[2], gain: p[1] });
-        });
-        A.noiseHit(t0, { type: 'highpass', freq: 4000, dur: 0.02, gain: 0.12 });
-    }
-
-    // Retorno de carro: el carro se desliza (barrido) y el trinquete va "tic-tic-tic".
-    function carriage(t0) {
-        A.noiseHit(t0, { freq: 700, freq2: 3200, q: 1.1, dur: 0.24, attack: 0.05, gain: 0.1 });
-        for (let i = 0; i < 7; i++) {
-            A.noiseHit(t0 + i * (0.034 - i * 0.002), { type: 'highpass', freq: 3000, dur: 0.006, gain: 0.07 });
+        strike(t0 + 0.022, 1.05);
+        A.noiseHit(t0 + 0.012, { type: 'lowpass', freq: 450, q: 0.8, dur: 0.12, gain: 0.3 });
+        A.tone(t0 + 0.012, { f0: 140, f1: 58, dur: 0.14, gain: 0.2, type: 'triangle' });
+        for (let i = 0; i < 3; i++) {
+            A.noiseHit(t0 + 0.07 + i * 0.03, { freq: 2600, q: 2, dur: 0.007, gain: 0.07 });
         }
-        A.tone(t0 + 0.26, { f0: 120, f1: 70, dur: 0.07, gain: 0.22 }); // tope del carro
+    }
+
+    // Timbre: la campanilla de acero ("¡ding!") con parciales no armónicos y cola larga.
+    function bell(t0) {
+        A.noiseHit(t0, { type: 'highpass', freq: 3500, dur: 0.012, gain: 0.16 }); // el martillito golpea
+        [[2093, 0.12, 1.7], [5770, 0.07, 1.0], [11300, 0.018, 0.5], [3120, 0.045, 1.2], [1570, 0.035, 1.4]]
+            .forEach(function (p) { ring(t0 + 0.001, p[0], p[1], p[2]); });
+    }
+
+    // Retorno de carro: la palanca arrastra el carro con un trinquete que "zumba" (clics cada vez
+    // más rápidos) y termina con un golpe seco contra el tope.
+    function carriage(t0) {
+        // arrastre
+        A.noiseHit(t0, { freq: 500, freq2: 1600, q: 0.9, dur: 0.5, attack: 0.08, gain: 0.05 });
+        let t = t0;
+        let gap = 0.036;
+        for (let i = 0; i < 16; i++) {
+            A.noiseHit(t, { freq: rand(2400, 3200), q: 2.2, dur: 0.006, attack: 0.0005, gain: 0.1 });
+            A.noiseHit(t, { type: 'lowpass', freq: 600, dur: 0.012, gain: 0.05 });
+            t += gap;
+            gap = Math.max(0.017, gap * 0.94);
+        }
+        // tope del carro
+        const e = t + 0.03;
+        A.noiseHit(e, { type: 'lowpass', freq: 420, q: 0.8, dur: 0.1, attack: 0.001, gain: 0.5 });
+        A.tone(e, { f0: 110, f1: 55, dur: 0.12, gain: 0.34 });
+        A.noiseHit(e, { type: 'highpass', freq: 1800, dur: 0.01, gain: 0.2 });
+        ring(e, 980, 0.04, 0.09);
     }
 
     // ---------------------------------------------------
@@ -101,7 +144,7 @@
         let wrapped = false;
         if (prev) wrapped = a.top > prev.getBoundingClientRect().top + a.height * 0.6;
         if (!wrapped && next) wrapped = next.getBoundingClientRect().top > a.top + a.height * 0.6;
-        if (wrapped) sound(t0 => { bell(t0); carriage(t0 + 0.07); });
+        if (wrapped) sound(t0 => { bell(t0); carriage(t0 + 0.2); });
     }
 
     // ---------------------------------------------------
@@ -127,10 +170,10 @@
 
     function onEnd(kind) {
         if (kind === 'gameover') {
-            sound(t0 => { jam(t0); jam(t0 + 0.16); A.tone(t0 + 0.3, { f0: 110, f1: 45, dur: 0.4, gain: 0.25 }); });
+            sound(t0 => { jam(t0); jam(t0 + 0.16); jam(t0 + 0.31); A.tone(t0 + 0.4, { f0: 110, f1: 45, dur: 0.4, gain: 0.25 }); });
         } else {
             // Hoja terminada: retorno de carro y timbre final.
-            sound(t0 => { carriage(t0); bell(t0 + 0.34); });
+            sound(t0 => { carriage(t0); bell(t0 + 0.62); });
         }
     }
 
