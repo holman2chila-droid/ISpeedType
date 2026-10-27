@@ -56,6 +56,9 @@ body.theme-halloween {
 
     --font-sans: 'Creepster', 'Georgia', 'Times New Roman', serif;
     --font-mono: 'Creepster', 'Georgia', 'Times New Roman', serif;
+    /* Creepster solo tiene letras tipo mayúscula: para el texto a escribir se usa una
+       gótica que distingue mayúsculas de minúsculas */
+    --hw-read: 'New Rocker', 'Georgia', 'Times New Roman', serif;
 
     --radius-sm: 8px;
     --radius-md: 14px;
@@ -402,7 +405,8 @@ body.theme-halloween .typing-input {
     color: var(--hw-bone);
     border: 2px solid var(--hw-edge);
     border-radius: 12px;
-    font-family: var(--font-sans);
+    font-family: var(--hw-read);
+    font-size: 1.1rem;
 }
 
 body.theme-halloween .text-input:focus,
@@ -425,9 +429,10 @@ body.theme-halloween .typing-input::placeholder {
 
 /* ---------- Texto a escribir: velas ---------- */
 body.theme-halloween #text-display {
-    font-size: 1.6rem;
+    font-family: var(--hw-read);
+    font-size: 1.55rem;
     line-height: 2.5;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.05em;
     scrollbar-color: var(--hw-edge) transparent;
 }
 

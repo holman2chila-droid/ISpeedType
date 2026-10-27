@@ -123,7 +123,7 @@
         load(url) {
             audio._cache = audio._cache || {};
             if (audio._cache[url]) return audio._cache[url];
-            audio._cache[url] = (async () => {
+            const job = (async () => {
                 try {
                     if (!audio.ctx) return null;
                     const res = await fetch(url);
@@ -132,10 +132,12 @@
                     return await new Promise((ok, fail) => audio.ctx.decodeAudioData(data, ok, fail));
                 } catch (e) { return null; }
             })();
-            return audio._cache[url];
+            audio._cache[url] = job;
+            // Un fallo (p. ej. aún no hay contexto de audio) no se recuerda: se podrá reintentar
+            job.then((b) => { if (!b && audio._cache[url] === job) delete audio._cache[url]; });
+            return job;
         },
 
-        // Reproduce un AudioBuffer. o: { gain?, rate?, send? (0..1 de reverb), when? }
         playBuffer(buf, o) {
             if (!buf || !audio.ready()) return;
             o = o || {};

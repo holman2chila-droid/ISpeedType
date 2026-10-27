@@ -12,7 +12,7 @@
 
    Sonido (todo sintetizado con Web Audio; no hace falta ningún archivo):
      - pasos que crujen sobre madera podrida al teclear (el espacio pesa más),
-     - viento, un zumbido grave y crujidos de casa vieja durante el test,
+     - un zumbido grave que late, crujidos, un búho lejano y algún lamento durante el test,
      - coro al llegar a cada múltiplo de 10 del combo, campanadas al terminar,
      - risa maligna al perder una vida o la partida.
 
@@ -60,6 +60,7 @@
     let boltEl = null;
     let ambience = null;
     let laughBufs = [], whisperBufs = [];
+    let loading = false;
 
     function el(cls) {
         const d = document.createElement('div');
@@ -145,7 +146,8 @@
 
     function laugh(delay) {
         if (!A.ready()) return;
-        const buf = laughBufs.length ? pick(laughBufs) : null;
+        const have = laughBufs.filter(Boolean);
+        const buf = have.length ? pick(have) : null;
         if (buf) {
             A.playBuffer(buf, { gain: 0.85, send: 0.5, rate: rand(0.96, 1.04), when: A.ctx.currentTime + (delay || 0) });
         } else {
@@ -158,7 +160,8 @@
         if (now - lastWhisper < 600) return;
         lastWhisper = now;
         if (!A.ready()) return;
-        const buf = whisperBufs.length ? pick(whisperBufs) : null;
+        const haveW = whisperBufs.filter(Boolean);
+        const buf = haveW.length ? pick(haveW) : null;
         if (buf) {
             A.playBuffer(buf, { gain: 0.5, send: 0.7, rate: rand(0.95, 1.05) });
             return;
@@ -239,43 +242,55 @@
     }
 
     // ---------------------------------------------------
-    // Ambiente durante el test: viento + zumbido grave + crujidos
-    // ---------------------------------------------------
+    // Ambiente durante el test: un zumbido grave que late (dos tonos casi iguales),
+    // un acorde disonante muy tenue y sucesos aislados (crujidos, búho, lamento lejano).
+    // Sin ruido continuo: el ruido filtrado suena a oleaje y rompe el ambiente.
     function startAmbience() {
         if (ambience || !A.ready()) return;
         try {
             const ctx = A.ctx;
             const master = ctx.createGain();
             master.gain.setValueAtTime(0.0001, ctx.currentTime);
-            master.gain.exponentialRampToValueAtTime(1, ctx.currentTime + 2.5);
+            master.gain.exponentialRampToValueAtTime(1, ctx.currentTime + 3);
             master.connect(A.out);
+            const wet = ctx.createGain();
+            wet.gain.value = 0.6;
+            master.connect(wet);
+            wet.connect(A.reverb());
 
-            const wind = ctx.createBufferSource();
-            wind.buffer = A.noise;
-            wind.loop = true;
-            const wf = ctx.createBiquadFilter();
-            wf.type = 'bandpass';
-            wf.frequency.value = 380;
-            wf.Q.value = 0.8;
-            const wg = ctx.createGain();
-            wg.gain.value = 0.05;
+            const nodes = [];
+            // [frecuencia, volumen]: 55 y 55.7 Hz laten ~0.7 veces por segundo
+            [[55, 0.05], [55.7, 0.05], [82.4, 0.018], [110.4, 0.012]].forEach(function (p) {
+                const o = ctx.createOscillator();
+                const g = ctx.createGain();
+                o.type = 'sine';
+                o.frequency.value = p[0];
+                g.gain.value = p[1];
+                o.connect(g); g.connect(master);
+                o.start();
+                nodes.push(o);
+            });
+            // Segunda menor, casi inaudible, que sube y baja muy despacio
             const lfo = ctx.createOscillator();
             const lg = ctx.createGain();
-            lfo.frequency.value = 0.11;
-            lg.gain.value = 0.035;
-            lfo.connect(lg); lg.connect(wg.gain);
-            wind.connect(wf); wf.connect(wg); wg.connect(master);
-
-            const drone = ctx.createOscillator();
-            const dg = ctx.createGain();
-            drone.type = 'sine';
-            drone.frequency.value = 55;
-            dg.gain.value = 0.05;
-            drone.connect(dg); dg.connect(master);
-
-            wind.start(); lfo.start(); drone.start();
-            ambience = { master: master, nodes: [wind, lfo, drone] };
-            scheduleCreak();
+            lfo.frequency.value = 0.07;
+            lg.gain.value = 0.006;
+            lfo.connect(lg);
+            lfo.start();
+            nodes.push(lfo);
+            [349.2, 369.99].forEach(function (hz) {
+                const o = ctx.createOscillator();
+                const g = ctx.createGain();
+                o.type = 'sine';
+                o.frequency.value = hz;
+                g.gain.value = 0.007;
+                lg.connect(g.gain);
+                o.connect(g); g.connect(master);
+                o.start();
+                nodes.push(o);
+            });
+            ambience = { master: master, nodes: nodes };
+            scheduleEvent();
         } catch (e) { ambience = null; }
     }
 
@@ -294,12 +309,37 @@
         } catch (e) { /* nada */ }
     }
 
-    function scheduleCreak() {
+    // Búho lejano: dos "uuu-uuu" suaves con mucho eco
+    function owl(t0) {
+        const ctx = A.ctx;
+        const wet = ctx.createGain();
+        wet.gain.value = 1;
+        wet.connect(A.reverb());
+        [0, 0.5].forEach(function (dt, i) {
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            const f = i ? 330 : 400;
+            o.type = 'sine';
+            o.frequency.setValueAtTime(f, t0 + dt);
+            o.frequency.exponentialRampToValueAtTime(f * 0.9, t0 + dt + 0.32);
+            g.gain.setValueAtTime(0.0001, t0 + dt);
+            g.gain.exponentialRampToValueAtTime(0.055, t0 + dt + 0.07);
+            g.gain.exponentialRampToValueAtTime(0.0001, t0 + dt + 0.36);
+            o.connect(g); g.connect(A.out); g.connect(wet);
+            o.start(t0 + dt);
+            o.stop(t0 + dt + 0.4);
+        });
+    }
+
+    function scheduleEvent() {
         clearTimeout(creakTimer);
         creakTimer = setTimeout(function () {
             if (!ambience) return;
-            sound(creak);
-            scheduleCreak();
+            const r = Math.random();
+            if (r < 0.55) sound(creak);
+            else if (r < 0.85) sound(owl);
+            else sound(function (t0) { wail(t0, 2.2, 0.45); });
+            scheduleEvent();
         }, rand(6000, 14000));
     }
 
@@ -423,6 +463,7 @@
     // ---------------------------------------------------
     function onKey(e) {
         if (!inTest) { inTest = true; startRound(); }
+        preload();
         const now = performance.now();
         if (now - lastKeySound > 18) {
             lastKeySound = now;
@@ -458,6 +499,7 @@
     }
 
     function startRound() {
+        preload();
         startAmbience();
         scheduleBat();
         scheduleBolt();
@@ -487,6 +529,7 @@
     function onSection(name) {
         if (name === 'typing') {
             lastLives = null;
+            preload();
             // El ambiente empieza con la primera tecla (así el audio ya está desbloqueado)
             inTest = true;
             scheduleBat();
@@ -498,11 +541,20 @@
         }
     }
 
+    // Carga las grabaciones en cuanto hay audio. Se llama en cada tecla/sección hasta que
+    // están todas (A.load no recuerda los fallos, así que reintenta sin repetir descargas).
     function preload() {
         if (!A.ready()) return;
-        laughBufs = []; whisperBufs = [];
-        LAUGH_FILES.forEach(function (u) { A.load(u).then(function (b) { if (b) laughBufs.push(b); }); });
-        WHISPER_FILES.forEach(function (u) { A.load(u).then(function (b) { if (b) whisperBufs.push(b); }); });
+        if (laughBufs.length >= LAUGH_FILES.length && whisperBufs.length >= WHISPER_FILES.length) return;
+        if (loading) return;
+        loading = true;
+        const jobs = [];
+        LAUGH_FILES.forEach(function (u, i) { if (!laughBufs[i]) jobs.push(A.load(u).then(function (b) { if (b) laughBufs[i] = b; })); });
+        WHISPER_FILES.forEach(function (u, i) { if (!whisperBufs[i]) jobs.push(A.load(u).then(function (b) { if (b) whisperBufs[i] = b; })); });
+        Promise.all(jobs).then(function () {
+            loading = false;
+            if (laughBufs.filter(Boolean).length >= LAUGH_FILES.length) document.removeEventListener('pointerdown', onFirstGesture);
+        }, function () { loading = false; });
     }
 
     function onActivate() {
@@ -516,13 +568,18 @@
         inTest = false;
         lastLives = null;
         spectral = false;
-        // El audio se crea con el primer gesto del usuario: se reintenta al primer toque
+        laughBufs = []; whisperBufs = []; loading = false;
+        // El audio se crea con el primer gesto del usuario: se reintenta al primer toque o tecla
         preload();
-        document.addEventListener('pointerdown', onFirstGesture, { once: true });
+        document.addEventListener('pointerdown', onFirstGesture);
     }
 
     function onFirstGesture() {
-        if (T.active === 'halloween') setTimeout(preload, 300);
+        if (T.active !== 'halloween') return;
+        setTimeout(preload, 400);
+        if (laughBufs.filter(Boolean).length >= LAUGH_FILES.length) {
+            document.removeEventListener('pointerdown', onFirstGesture);
+            }
     }
 
     function onDeactivate() {
@@ -538,7 +595,7 @@
 
     T.register('halloween', {
         bodyClass: 'theme-halloween',
-        fontHref: 'https://fonts.googleapis.com/css2?family=Creepster&display=swap',
+        fontHref: 'https://fonts.googleapis.com/css2?family=Creepster&family=New+Rocker&display=swap',
         on: {
             activate: onActivate,
             deactivate: onDeactivate,
