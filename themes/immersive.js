@@ -1,9 +1,9 @@
 /* ===================================================
    ISpeedType — Temas inmersivos (motor)
 
-   Los temas inmersivos son un extra OCULTO: se desbloquean haciendo
-   10 clics seguidos en el logo. Este archivo contiene lo común a todos:
-     - el desbloqueo secreto y su persistencia,
+   Los temas inmersivos son públicos (aparecen siempre en el menú de temas).
+   Este archivo contiene lo común a todos:
+     - la persistencia del tema elegido,
      - activar / desactivar un tema (clase en <body>),
      - el motor de audio compartido (Web Audio, sin archivos de sonido),
      - el reparto de eventos del juego hacia el tema activo.
@@ -19,13 +19,10 @@
 (function () {
     'use strict';
 
-    const KEY_UNLOCKED = 'speedtype-immersive-unlocked';
     const KEY_ACTIVE = 'speedtype-immersive';
     const KEY_SOUND = 'speedtype-immersive-sound';
     const KEY_BASE_THEME = 'speedtype-theme'; // el tema de color normal (lo guarda app.js)
 
-    const CLICKS_TO_UNLOCK = 10;   // clics en el logo para desbloquear
-    const MAX_GAP_MS = 2000;       // si pasa más tiempo entre clics, la cuenta se reinicia
 
     // localStorage puede no estar disponible (modo privado, bloqueado...): nunca debe romper nada.
     const store = {
@@ -40,7 +37,8 @@
     const loadedFonts = {};
     const reduceMotionMQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
 
-    let unlocked = store.get(KEY_UNLOCKED) === '1';
+    // Los temas inmersivos ya son públicos: siempre disponibles (antes se desbloqueaban con 10 clics en el logo).
+    const unlocked = true;
 
     // ---------------------------------------------------
     // Audio compartido
@@ -226,11 +224,9 @@
             if (fn) fn(a, b);
         },
 
-        // Útil para probar: vuelve a bloquear los temas y quita el activo.
+        // Útil para probar: quita el tema activo.
         reset() {
             deactivate();
-            unlocked = false;
-            store.del(KEY_UNLOCKED);
             store.del(KEY_ACTIVE);
             syncUI();
         }
@@ -335,67 +331,10 @@
         return window.I18N ? window.I18N.t(key) : key;
     }
 
-    function showToast(message) {
-        const old = document.querySelector('.immersive-toast');
-        if (old) old.remove();
-        const el = document.createElement('div');
-        el.className = 'immersive-toast';
-        el.setAttribute('role', 'status');
-        el.textContent = message;
-        document.body.appendChild(el);
-        setTimeout(() => el.classList.add('is-hiding'), 4200);
-        setTimeout(() => el.remove(), 4700);
-    }
-
-    // ---------------------------------------------------
-    // Desbloqueo secreto: 10 clics seguidos en el logo
-    // ---------------------------------------------------
-    function unlock() {
-        if (unlocked) return;
-        unlocked = true;
-        store.set(KEY_UNLOCKED, '1');
-        syncUI();
-        showToast(t('ui.immersive-unlocked'));
-
-        // Abre el menú de temas para que se vea dónde quedó la opción nueva.
-        // (setTimeout: el clic en el logo también cierra el menú desde app.js; esto va después.)
-        setTimeout(() => {
-            const dd = document.getElementById('theme-dropdown');
-            if (dd) dd.classList.remove('hidden');
-        }, 0);
-    }
-
-    function setupLogo() {
-        const logo = document.getElementById('logo-home');
-        if (!logo) return;
-        let count = 0;
-        let last = 0;
-        logo.addEventListener('click', () => {
-            if (unlocked) return;
-            const now = Date.now();
-            if (now - last > MAX_GAP_MS) count = 0;
-            last = now;
-            count++;
-
-            if (count >= CLICKS_TO_UNLOCK) {
-                count = 0;
-                unlock();
-            } else if (count >= 5 && !api.reducedMotion && logo.animate) {
-                // Pista muy sutil de que algo está pasando (solo a partir del 5.º clic).
-                logo.animate(
-                    [{ rotate: '0deg' }, { rotate: '-3deg' }, { rotate: '3deg' }, { rotate: '0deg' }],
-                    { duration: 220 }
-                );
-            }
-        });
-    }
-
     // ---------------------------------------------------
     // Arranque
     // ---------------------------------------------------
     function setup() {
-        setupLogo();
-
         // Opciones inmersivas del menú
         document.querySelectorAll('.immersive-option').forEach(btn => {
             btn.addEventListener('click', () => {
