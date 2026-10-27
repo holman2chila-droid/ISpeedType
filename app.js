@@ -912,6 +912,10 @@
         if (!isLivesMode) return;
         livesCountDisplay.textContent = currentLives;
 
+        // Temas inmersivos: avisan de las vidas que quedan (el tema compara con la vez anterior).
+        const T = window.ImmersiveThemes;
+        if (T && T.active) T.emit('life', currentLives, maxLives);
+
         if (maxLives === 1) {
             livesHeartsDisplay.textContent = currentLives === 1 ? '💀' : '☠️';
         } else {
