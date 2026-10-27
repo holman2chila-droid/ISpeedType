@@ -945,3 +945,30 @@ body.theme-greek .site-footer {
         transition: none;
     }
 }
+
+/* ---------- Cuenta atrás: placa de mármol (antes salía azul oscuro) ---------- */
+body.theme-greek .countdown-overlay {
+    background: rgba(250, 247, 240, 0.95) url('greek-marble-tile.jpg');
+    border: 3px double var(--gr-gold);
+    border-radius: 3px;
+    box-shadow: 0 10px 28px rgba(60, 50, 30, 0.3);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+body.theme-greek .countdown-number {
+    font-family: var(--gr-display);
+    background: none;
+    -webkit-text-fill-color: var(--gr-gold-deep);
+    color: var(--gr-gold-deep);
+    filter: none;
+}
+
+body.theme-greek .countdown-label {
+    font-family: var(--gr-display);
+    background: var(--gr-marble);
+    border: 2px solid var(--gr-gold);
+    border-radius: 2px;
+    color: var(--gr-lapis-deep);
+    box-shadow: 0 2px 0 var(--gr-gold-deep);
+}

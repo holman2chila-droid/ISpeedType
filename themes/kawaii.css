@@ -786,3 +786,20 @@ body.theme-kawaii .practice-mode-banner strong,
 body.theme-kawaii .practice-mode-banner b {
     color: #b36b00;
 }
+
+/* ---------- Cuenta atrás: tarjeta pastel (antes salía oscura) ---------- */
+body.theme-kawaii .countdown-overlay {
+    background: rgba(255, 244, 251, 0.985);
+    border: 3px solid #ffc2dc;
+    border-radius: 32px;
+    box-shadow: 0 12px 30px rgba(183, 155, 255, 0.35);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+body.theme-kawaii .countdown-label {
+    background: #fff;
+    border: 2px solid #ffc2dc;
+    color: #8a68a6;
+    box-shadow: 0 3px 0 #ffc2dc;
+}
