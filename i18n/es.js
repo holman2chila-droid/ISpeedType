@@ -18,6 +18,7 @@
     "ui.immersive-deepweb": "Deep web (terror)",
     "ui.immersive-typewriter": "Máquina de escribir",
     "ui.immersive-kawaii": "Nube kawaii",
+    "ui.immersive-greek": "Olimpo (mármol griego)",
     "ui.immersive-cyberpunk": "Cyberpunk (Terminal 2077)",
     "dw.warn-title": "⚠ Advertencia: contenido de terror",
     "dw.warn-text": "Este tema usa casi total oscuridad, sacudidas de pantalla y sonidos graves. En el modo con sustos añade destellos súbitos y rostros que aparecen un instante al fallar, lo que puede provocar convulsiones en personas con epilepsia fotosensible. Elige cómo quieres jugarlo.",

@@ -1,0 +1,947 @@
+/* ===================================================
+   ISpeedType — Tema inmersivo: GRECIA CLÁSICA (Olimpo de Mármol)
+   Mármol blanco veteado, columnas jónicas, grecas doradas y los dioses del
+   Olimpo reaccionando a tu racha (themes/greek.js).
+   Todo va dentro de body.theme-greek: sin la clase, esto no afecta a nada.
+
+   Reglas de rendimiento (ver notas en styles.css):
+     - nada de text-shadow ni animaciones por letra en el texto principal;
+     - las letras solo cambian de color / fondo (se pintan, no recalculan layout);
+     - columnas, friso y destellos viven en capas fijas; solo se anima
+       transform / opacity.
+   =================================================== */
+
+body.theme-greek {
+    /* Paleta propia del tema */
+    --gr-gold: #b8892b;
+    --gr-gold-deep: #8a6516;
+    --gr-gold-light: #e8cf8a;
+    --gr-gold-fill: #d4a843;
+    --gr-lapis: #1d4f91;
+    --gr-lapis-deep: #12305c;
+    --gr-terra: #b3441f;
+    --gr-ink: #26242b;
+    --gr-marble: #f6f2e8;
+    --gr-stone: #8b867a;
+
+    /* Variables globales de la app, redefinidas (mármol claro) */
+    --bg-primary: #f3efe4;
+    --bg-secondary: #ebe6d8;
+    --bg-card: rgba(250, 247, 240, 0.97);
+    --bg-card-hover: #fffdf8;
+    --bg-input: #fffdf8;
+
+    --text-primary: #26242b;
+    --text-secondary: #5b5666;
+    --text-muted: #8a8494;
+
+    --accent-primary: #1d4f91;
+    --accent-primary-hover: #2a68b8;
+    --accent-glow: rgba(29, 79, 145, 0.25);
+    --accent-secondary: #b8892b;
+    --accent-secondary-glow: rgba(184, 137, 43, 0.28);
+
+    --color-correct: #1d4f91;
+    --color-correct-bg: transparent;
+    --color-error: #b3261e;
+    --color-error-bg: rgba(179, 38, 30, 0.14);
+    --color-error-glow: rgba(179, 38, 30, 0.3);
+    --color-current: #b8892b;
+    --color-current-bg: rgba(212, 168, 67, 0.3);
+    --color-pending: #7d786b;
+
+    --border-color: rgba(184, 137, 43, 0.55);
+    --border-color-hover: #b8892b;
+
+    --glow-1: transparent;
+    --glow-2: transparent;
+    --glow-3: transparent;
+
+    --font-sans: 'EB Garamond', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+    --font-mono: 'EB Garamond', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+    --gr-display: 'Cinzel', 'Trajan Pro', 'Palatino Linotype', Georgia, serif;
+
+    --radius-sm: 2px;
+    --radius-md: 3px;
+    --radius-lg: 4px;
+    --radius-xl: 6px;
+
+    color: var(--text-primary);
+    font-size: 17px;
+    background-color: #f3efe4;
+    background-image: url('greek-marble.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+    transition: none;
+}
+
+/* Deja sitio al friso fijo de arriba */
+body.theme-greek .app-container {
+    padding-top: 62px;
+}
+
+body.theme-greek .bg-glow {
+    display: none;
+}
+
+body.theme-greek .glass-card,
+body.theme-greek .glass-card-mini,
+body.theme-greek .theme-dropdown,
+body.theme-greek .theme-toggle-btn,
+body.theme-greek .achievement-toast {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* ---------- Encabezado ---------- */
+body.theme-greek .logo-text {
+    font-family: var(--gr-display);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gr-lapis-deep);
+}
+
+body.theme-greek .logo-accent {
+    color: var(--gr-gold);
+    background: none;
+    -webkit-text-fill-color: currentColor;
+}
+
+/* Logo: moneda de oro con la Ómega */
+body.theme-greek .logo-icon,
+body.theme-greek .footer-logo-icon {
+    position: relative;
+    background: radial-gradient(circle at 35% 30%, #f6e3a2, #d4a843 55%, #9c7420);
+    border: 2px solid var(--gr-gold-deep);
+    border-radius: 50%;
+    box-shadow: 0 2px 0 var(--gr-gold-deep), 0 6px 14px rgba(138, 101, 22, 0.35);
+    color: transparent;
+}
+
+body.theme-greek .logo-icon svg,
+body.theme-greek .footer-logo-icon svg {
+    display: none;
+}
+
+body.theme-greek .logo-icon::after,
+body.theme-greek .footer-logo-icon::after {
+    content: 'Ω';
+    font: 700 1.55rem/1 var(--gr-display);
+    color: #5b3d00;
+}
+
+body.theme-greek .logo:hover .logo-icon {
+    box-shadow: 0 2px 0 var(--gr-gold-deep), 0 8px 20px rgba(138, 101, 22, 0.5);
+}
+
+body.theme-greek .tagline {
+    font-family: var(--gr-display);
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+body.theme-greek .tagline::before,
+body.theme-greek .tagline::after {
+    content: '';
+    display: inline-block;
+    width: 38px;
+    height: 1px;
+    margin: 0 12px;
+    vertical-align: middle;
+    background: linear-gradient(90deg, transparent, var(--gr-gold));
+}
+
+body.theme-greek .tagline::after {
+    background: linear-gradient(90deg, var(--gr-gold), transparent);
+}
+
+body.theme-greek .theme-toggle-btn,
+body.theme-greek .achievements-toggle-btn,
+body.theme-greek .lang-switch,
+body.theme-greek .stats-toggle-btn {
+    background: var(--gr-marble);
+    color: var(--gr-lapis-deep);
+    border: 2px solid var(--gr-gold);
+    border-radius: 2px;
+    font-family: var(--gr-display);
+    box-shadow: 0 2px 0 var(--gr-gold-deep);
+}
+
+body.theme-greek .theme-toggle-btn:hover,
+body.theme-greek .achievements-toggle-btn:hover {
+    background: #fffdf8;
+    border-color: var(--gr-gold-deep);
+}
+
+/* ---------- Tarjetas: lápidas de mármol con doble filete dorado ---------- */
+body.theme-greek .glass-card {
+    background-color: #faf7f0;
+    background-image:
+        repeating-linear-gradient(90deg, var(--gr-gold) 0 8px, transparent 8px 12px),
+        url('greek-marble-tile.jpg');
+    background-size: 100% 3px, 512px 512px;
+    background-position: 0 0, 0 0;
+    background-repeat: no-repeat, repeat;
+    border: 2px solid var(--gr-gold);
+    border-radius: 3px;
+    outline: 1px solid rgba(184, 137, 43, 0.55);
+    outline-offset: -9px;
+    box-shadow: 0 3px 0 var(--gr-gold-deep), 0 14px 30px rgba(60, 50, 30, 0.22);
+}
+
+body.theme-greek .glass-card:hover {
+    border-color: var(--gr-gold-deep);
+}
+
+body.theme-greek .typing-card {
+    border-color: var(--gr-lapis);
+    outline-color: rgba(29, 79, 145, 0.4);
+    box-shadow: 0 3px 0 var(--gr-lapis-deep), 0 14px 30px rgba(18, 48, 92, 0.22);
+}
+
+body.theme-greek .results-card {
+    border-color: var(--gr-gold-deep);
+}
+
+body.theme-greek .glass-card-mini {
+    background: #faf7f0 url('greek-marble-tile.jpg');
+    border: 2px solid var(--gr-gold);
+    border-radius: 2px;
+    box-shadow: 0 2px 0 var(--gr-gold-deep);
+}
+
+body.theme-greek .card-header h2,
+body.theme-greek .results-title {
+    font-family: var(--gr-display);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gr-lapis-deep);
+}
+
+body.theme-greek .card-description {
+    color: var(--text-secondary);
+    font-size: 1.02rem;
+}
+
+body.theme-greek .card-description kbd {
+    background: var(--gr-marble);
+    border: 1px solid var(--gr-gold);
+    border-radius: 2px;
+    color: var(--gr-lapis-deep);
+    font-family: var(--gr-display);
+}
+
+body.theme-greek .card-icon,
+body.theme-greek .results-badge {
+    background: radial-gradient(circle at 35% 30%, #f6e3a2, #d4a843 60%, #9c7420);
+    border: 2px solid var(--gr-gold-deep);
+    border-radius: 50%;
+    color: #4a3200;
+}
+
+/* Estadísticas: cada una con un metal / piedra */
+body.theme-greek .stat-card:nth-child(1) {
+    border-top: 4px solid var(--gr-lapis);
+}
+
+body.theme-greek .stat-card:nth-child(2) {
+    border-top: 4px solid #4a7c59;
+}
+
+body.theme-greek .stat-card:nth-child(3) {
+    border-top: 4px solid var(--gr-gold-fill);
+}
+
+body.theme-greek .stat-card:nth-child(4) {
+    border-top: 4px solid var(--gr-terra);
+}
+
+body.theme-greek #wpm-display {
+    color: var(--gr-lapis);
+}
+
+body.theme-greek #accuracy-display {
+    color: #3b6e4a;
+}
+
+body.theme-greek #time-display {
+    color: var(--gr-gold-deep);
+}
+
+body.theme-greek #errors-display {
+    color: var(--gr-terra);
+}
+
+body.theme-greek .stat-value,
+body.theme-greek .stat-card .stat-value {
+    font-family: var(--gr-display);
+    font-weight: 700;
+}
+
+body.theme-greek .stat-label {
+    font-family: var(--gr-display);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    color: var(--text-secondary);
+}
+
+/* ---------- Botones: bronce y lapislázuli ---------- */
+body.theme-greek .btn,
+body.theme-greek .btn-practice-start,
+body.theme-greek .btn-tutor-start {
+    border: 2px solid var(--gr-gold-deep);
+    border-radius: 2px;
+    font-family: var(--gr-display);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    box-shadow: 0 3px 0 var(--gr-gold-deep);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.2s ease;
+}
+
+body.theme-greek .btn:hover,
+body.theme-greek .btn-practice-start:hover,
+body.theme-greek .btn-tutor-start:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 var(--gr-gold-deep);
+}
+
+body.theme-greek .btn:active,
+body.theme-greek .btn-practice-start:active,
+body.theme-greek .btn-tutor-start:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 var(--gr-gold-deep);
+}
+
+body.theme-greek .btn::after {
+    display: none;
+}
+
+body.theme-greek .btn-primary {
+    background: linear-gradient(180deg, #2a68b8, var(--gr-lapis) 55%, var(--gr-lapis-deep));
+    color: #fbf3d6;
+}
+
+body.theme-greek .btn-secondary {
+    background: linear-gradient(180deg, #ecd48e, var(--gr-gold-fill) 60%, #b98c2c);
+    color: #3b2800;
+}
+
+body.theme-greek .btn-ghost {
+    background: var(--gr-marble);
+    color: var(--gr-lapis-deep);
+}
+
+body.theme-greek .btn-ghost:hover {
+    background: #fffdf8;
+}
+
+body.theme-greek .btn-practice-start {
+    background: linear-gradient(180deg, #f1e4bd, #dcc68a);
+    color: #4a3200;
+}
+
+body.theme-greek .btn-tutor-start {
+    background: linear-gradient(180deg, #5b86bf, #3d6aa8);
+    color: #fbf3d6;
+}
+
+body.theme-greek .btn-diff {
+    background: var(--gr-marble);
+    border: 2px solid var(--gr-gold);
+    border-radius: 2px;
+    color: var(--gr-lapis-deep);
+    font-family: var(--gr-display);
+    box-shadow: 0 2px 0 var(--gr-gold);
+}
+
+body.theme-greek .btn-diff:hover {
+    background: #fffdf8;
+    border-color: var(--gr-gold-deep);
+}
+
+body.theme-greek .btn-diff.active {
+    background: var(--gr-lapis);
+    border-color: var(--gr-lapis-deep);
+    color: #fbf3d6;
+    box-shadow: 0 2px 0 var(--gr-lapis-deep);
+}
+
+body.theme-greek .btn-diff.diff-hardcore.active {
+    background: var(--gr-terra);
+    border-color: #7d2a10;
+    box-shadow: 0 2px 0 #7d2a10;
+}
+
+/* Interruptores */
+body.theme-greek .slider {
+    background-color: #d9d2bf;
+    border: 1px solid var(--gr-gold);
+}
+
+body.theme-greek .slider::before {
+    background-color: #fffdf8;
+    border: 1px solid var(--gr-gold);
+}
+
+body.theme-greek .switch-toggle input:checked+.slider {
+    background-color: var(--gr-lapis);
+    border-color: var(--gr-lapis-deep);
+}
+
+body.theme-greek .switch-toggle input:checked+.slider::before {
+    background-color: var(--gr-gold-light);
+    box-shadow: none;
+}
+
+/* ---------- Campos de texto ---------- */
+body.theme-greek .text-input,
+body.theme-greek .typing-input {
+    background: #fffdf8;
+    color: var(--gr-ink);
+    border: 2px solid var(--gr-gold);
+    border-radius: 2px;
+    caret-color: var(--gr-lapis);
+    font-size: 1.1rem;
+    box-shadow: inset 0 2px 4px rgba(90, 70, 20, 0.12);
+}
+
+body.theme-greek .text-input::placeholder,
+body.theme-greek .typing-input::placeholder {
+    color: #9b95a3;
+    font-style: italic;
+}
+
+body.theme-greek .text-input:focus,
+body.theme-greek .typing-input:focus {
+    border-color: var(--gr-lapis);
+    box-shadow: 0 0 0 3px rgba(29, 79, 145, 0.18), inset 0 2px 4px rgba(90, 70, 20, 0.12);
+    outline: none;
+}
+
+body.theme-greek .typing-input.has-error {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.2);
+    animation: none;
+}
+
+body.theme-greek .typing-input.on-fire-border {
+    border-color: var(--gr-gold-deep) !important;
+    box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.4) !important;
+}
+
+body.theme-greek .typing-card.on-fire {
+    border-color: var(--gr-gold-deep) !important;
+}
+
+/* ---------- Texto a escribir: tablilla ---------- */
+body.theme-greek #text-display {
+    font-size: 1.42rem;
+    font-weight: 500;
+    letter-spacing: 0.045em;
+    scrollbar-color: var(--gr-gold) transparent;
+}
+
+body.theme-greek #text-display::-webkit-scrollbar-thumb {
+    background: var(--gr-gold);
+}
+
+body.theme-greek #text-display .char {
+    transition: none;
+    border-radius: 2px;
+}
+
+/* Por escribir: piedra oscura bien legible sobre el mármol */
+body.theme-greek #text-display .char.char-pending {
+    color: var(--color-pending);
+}
+
+/* Escrito: azul lapislázuli, como pigmento antiguo */
+body.theme-greek #text-display .char.char-correct {
+    color: var(--gr-lapis);
+    background: transparent;
+}
+
+/* Con la racha la app fuerza verde; aquí la letra se vuelve oro (bendición divina) */
+body.theme-greek #text-display.on-fire .char.char-correct {
+    color: var(--gr-gold-deep) !important;
+}
+
+/* Letra actual: cincel dorado */
+body.theme-greek #text-display .char.char-current {
+    color: #2e2000;
+    background-color: rgba(212, 168, 67, 0.5);
+}
+
+/* Error: terracota con subrayado ondulado */
+body.theme-greek #text-display .char.char-error {
+    color: var(--color-error);
+    background-color: var(--color-error-bg);
+    text-decoration: underline wavy var(--color-error);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 4px;
+}
+
+/* ---------- Combo: medidor de laureles ---------- */
+body.theme-greek #combo-stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+body.theme-greek #combo-stat-card::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 8px;
+    height: 6px;
+    border: 1px solid var(--gr-gold);
+    background: linear-gradient(90deg, var(--gr-gold-fill) calc(var(--gr-fill, 0) * 100%), transparent calc(var(--gr-fill, 0) * 100%));
+}
+
+body.theme-greek .combo-highlight {
+    color: var(--gr-gold-deep);
+    text-shadow: none;
+}
+
+/* Racha: el borde de la caja pulsa entre oro y lapislázuli (favor de los dioses) */
+body.theme-greek .typing-card.gr-blessed {
+    animation: gr-bless 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes gr-bless {
+    from {
+        border-color: var(--gr-gold);
+        box-shadow: 0 3px 0 var(--gr-gold-deep), 0 0 0 0 rgba(212, 168, 67, 0), 0 14px 30px rgba(60, 50, 30, 0.22);
+    }
+
+    to {
+        border-color: var(--gr-gold-fill);
+        box-shadow: 0 3px 0 var(--gr-gold-deep), 0 0 0 5px rgba(212, 168, 67, 0.35), 0 14px 30px rgba(60, 50, 30, 0.22);
+    }
+}
+
+/* ---------- Barra de progreso: friso con greca ---------- */
+body.theme-greek .progress-bar-container {
+    height: 14px;
+    background: #efe9d8;
+    border: 2px solid var(--gr-gold);
+    border-radius: 1px;
+}
+
+body.theme-greek .progress-bar-fill {
+    border-radius: 0;
+    box-shadow: none;
+    background: repeating-linear-gradient(90deg, var(--gr-lapis) 0 14px, var(--gr-gold-fill) 14px 17px);
+}
+
+body.theme-greek .progress-bar-fill::after {
+    display: none;
+}
+
+body.theme-greek .progress-text {
+    font-family: var(--gr-display);
+    color: var(--gr-lapis-deep);
+    font-weight: 700;
+}
+
+/* ---------- Aviso de modo práctica ---------- */
+body.theme-greek .practice-mode-banner {
+    background: #f6ecc9;
+    border: 2px solid var(--gr-gold);
+    border-radius: 2px;
+    color: #6b4a00;
+}
+
+body.theme-greek .practice-mode-banner strong,
+body.theme-greek .practice-mode-banner b {
+    color: #8a5a00;
+}
+
+/* ---------- Menú de temas ---------- */
+body.theme-greek .theme-dropdown {
+    background: #faf7f0;
+    border: 2px solid var(--gr-gold);
+    border-radius: 3px;
+    box-shadow: 0 3px 0 var(--gr-gold-deep), 0 14px 28px rgba(60, 50, 30, 0.3);
+}
+
+body.theme-greek .theme-option,
+body.theme-greek .immersive-option {
+    color: var(--text-secondary);
+    border-radius: 2px;
+    font-family: var(--gr-display);
+    font-size: 0.78rem;
+}
+
+body.theme-greek .theme-option:hover,
+body.theme-greek .immersive-option:hover,
+body.theme-greek .immersive-option:focus-visible {
+    background: #f1ead6;
+    color: var(--gr-lapis-deep);
+    border-color: var(--gr-gold);
+}
+
+body.theme-greek .immersive-option.active {
+    background: #f1ead6;
+    color: var(--gr-lapis);
+    border-color: var(--gr-lapis);
+}
+
+body.theme-greek .immersive-sound {
+    border-radius: 2px;
+    border-color: var(--gr-gold);
+    font-family: var(--gr-display);
+}
+
+/* Miniatura del menú: columna sobre mármol */
+.swatch-greek {
+    background:
+        linear-gradient(90deg, transparent 0 28%, #e9e2cf 28% 40%, #c9c0a8 40% 46%, #e9e2cf 46% 58%, #c9c0a8 58% 64%, #e9e2cf 64% 72%, transparent 72%),
+        linear-gradient(#d4a843 0 14%, transparent 14%),
+        linear-gradient(135deg, #fbf8ef, #e6dfcc);
+    box-shadow: inset 0 0 0 2px #b8892b;
+}
+
+/* ---------- Pie de página ---------- */
+body.theme-greek .site-footer {
+    background: #faf7f0 url('greek-marble-tile.jpg');
+    border-top: 3px double var(--gr-gold);
+}
+
+/* =====================================================
+   Escena: columnas jónicas, friso con greca y estilóbato
+   (capa fija detrás del contenido)
+   ===================================================== */
+.gr-fx {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* Friso superior: arquitrabe de mármol, greca dorada y lema en griego */
+.gr-frieze {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 44px;
+    background: #f7f3e8 url('greek-marble-tile.jpg');
+    border-bottom: 3px double var(--gr-gold);
+    box-shadow: 0 6px 14px rgba(60, 50, 30, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    font: 600 0.7rem/1 'Cinzel', 'Palatino Linotype', Georgia, serif;
+    letter-spacing: 0.4em;
+    color: var(--gr-gold-deep);
+    z-index: 3;
+}
+
+.gr-frieze::before,
+.gr-frieze::after {
+    content: '';
+    flex: 1;
+    height: 18px;
+    background: repeat-x center / auto 18px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='18' viewBox='0 0 28 18'%3E%3Cpath d='M0 17H28M4 17V2H24V13H11V7H18V10' fill='none' stroke='%23b8892b' stroke-width='2'/%3E%3C/svg%3E");
+}
+
+.gr-frieze span {
+    white-space: nowrap;
+}
+
+/* Estilóbato: peldaños de piedra abajo */
+.gr-steps {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 16px;
+    background:
+        linear-gradient(var(--gr-gold-fill) 0 2px, transparent 2px),
+        linear-gradient(#e8e1cc 0 8px, #d6cdb2 8px);
+    border-top: 1px solid var(--gr-gold-deep);
+    z-index: 3;
+}
+
+/* Columna: capitel jónico + fuste acanalado + basa */
+.gr-col {
+    position: absolute;
+    top: 44px;
+    bottom: 16px;
+    width: clamp(78px, 8vw, 118px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+}
+
+.gr-col-l {
+    left: 1.2vw;
+}
+
+.gr-col-r {
+    right: 1.2vw;
+}
+
+.gr-cap,
+.gr-base {
+    display: block;
+    width: 100%;
+    height: auto;
+    flex: none;
+}
+
+.gr-shaft {
+    flex: 1;
+    width: 78%;
+    background:
+        linear-gradient(90deg, rgba(60, 50, 30, 0.34), rgba(60, 50, 30, 0.08) 22%, rgba(255, 255, 255, 0.35) 42%, rgba(255, 255, 255, 0) 62%, rgba(60, 50, 30, 0.22) 100%),
+        repeating-linear-gradient(90deg, rgba(60, 50, 30, 0.2) 0 2px, rgba(255, 255, 255, 0.28) 2px 5px, rgba(60, 50, 30, 0.05) 5px 11px),
+        url('greek-marble-tile.jpg');
+    border-left: 1px solid rgba(120, 100, 50, 0.45);
+    border-right: 1px solid rgba(120, 100, 50, 0.45);
+}
+
+/* En pantallas estrechas las columnas estorbarían: solo friso y estilóbato */
+@media (max-width: 1100px) {
+    .gr-col {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .gr-frieze span {
+        display: none;
+    }
+}
+
+/* =====================================================
+   Dioses: medallón de favor, pergamino y efectos
+   ===================================================== */
+.gr-medal {
+    position: fixed;
+    right: 16px;
+    bottom: 30px;
+    z-index: 6;
+    width: 74px;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gr-medal.is-on {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.gr-medal-coin {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f6e3a2, #d4a843 58%, #8a6516);
+    border: 3px solid var(--gr-gold-deep);
+    box-shadow: 0 3px 0 #5b3d00, 0 10px 20px rgba(60, 40, 0, 0.35);
+    display: grid;
+    place-items: center;
+}
+
+.gr-medal-coin svg {
+    width: 46px;
+    height: 46px;
+    fill: none;
+    stroke: #3b2800;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.gr-medal-coin svg .f {
+    fill: #3b2800;
+}
+
+.gr-medal-name {
+    margin-top: 6px;
+    padding: 2px 6px;
+    background: #faf7f0;
+    border: 1px solid var(--gr-gold);
+    font: 700 0.62rem/1.2 'Cinzel', Georgia, serif;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gr-lapis-deep);
+}
+
+/* Pergamino con la voz de los dioses (aparece unos segundos) */
+.gr-scroll {
+    position: fixed;
+    left: 50%;
+    bottom: 34px;
+    z-index: 7;
+    transform: translate(-50%, 24px);
+    opacity: 0;
+    pointer-events: none;
+    max-width: min(88vw, 520px);
+    padding: 11px 34px;
+    background: linear-gradient(180deg, #f6ebc8, #ecdcaa);
+    border-top: 3px solid #b8892b;
+    border-bottom: 3px solid #b8892b;
+    border-left: 8px solid #8a6516;
+    border-right: 8px solid #8a6516;
+    box-shadow: 0 8px 20px rgba(60, 40, 0, 0.3);
+    color: #3b2800;
+    font: 600 1.05rem/1.25 'Cinzel', 'EB Garamond', Georgia, serif;
+    letter-spacing: 0.04em;
+    text-align: center;
+    transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.gr-scroll.is-on {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.gr-scroll small {
+    display: block;
+    margin-bottom: 2px;
+    font: 700 0.62rem/1 'Cinzel', Georgia, serif;
+    letter-spacing: 0.3em;
+    color: var(--gr-gold-deep);
+}
+
+/* Destellos dorados al acertar (elementos reutilizables) */
+.gr-pops {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 40;
+}
+
+.gr-pop {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    font-size: 15px;
+    line-height: 1;
+    color: #d4a843;
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+
+/* Grieta en el mármol al fallar */
+.gr-crack {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 120px;
+    height: 120px;
+    margin: -60px 0 0 -60px;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 41;
+    overflow: visible;
+}
+
+.gr-crack path {
+    fill: none;
+    stroke: #3a3228;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Rayo de Zeus y destello */
+.gr-bolt {
+    position: fixed;
+    top: 0;
+    z-index: 9995;
+    width: 160px;
+    height: 70vh;
+    margin-left: -80px;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.gr-bolt polyline {
+    fill: none;
+    stroke: #fff6c8;
+    stroke-width: 5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 6px #ffd24a) drop-shadow(0 0 14px #ffb300);
+}
+
+.gr-flash {
+    position: fixed;
+    inset: 0;
+    z-index: 9994;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(ellipse at 50% 20%, rgba(255, 244, 190, 0.9), rgba(255, 230, 140, 0.35) 55%, transparent 100%);
+}
+
+/* Cartel de fin de partida: placa de mármol con laurel */
+.gr-banner {
+    position: fixed;
+    left: 50%;
+    top: 40%;
+    z-index: 9996;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    pointer-events: none;
+    padding: 18px 46px;
+    font: 700 clamp(1.5rem, 5.5vw, 2.8rem)/1.1 'Cinzel', Georgia, serif;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-align: center;
+    background: #faf7f0 url('greek-marble-tile.jpg');
+    border: 3px double var(--gr-gold);
+    outline: 2px solid var(--gr-gold-deep);
+    outline-offset: 4px;
+    box-shadow: 0 18px 50px rgba(60, 40, 0, 0.45);
+}
+
+.gr-banner small {
+    display: block;
+    margin-top: 8px;
+    font: 600 0.9rem/1 'EB Garamond', Georgia, serif;
+    letter-spacing: 0.3em;
+    color: var(--text-secondary);
+}
+
+.gr-banner.is-good {
+    color: var(--gr-gold-deep);
+}
+
+.gr-banner.is-bad {
+    color: #4a3b52;
+    border-color: #6b5b78;
+    outline-color: #3a2f44;
+}
+
+/* ---------- Accesibilidad: sin movimiento extra ---------- */
+@media (prefers-reduced-motion: reduce) {
+
+    body.theme-greek .typing-card.gr-blessed {
+        animation: none;
+    }
+
+    .gr-medal,
+    .gr-scroll {
+        transition: none;
+    }
+}
