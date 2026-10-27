@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="92" height="27" viewBox="0 0 92 27">
+  <g fill="#0b0414" stroke="#4a2a78" stroke-width="0.7" stroke-linejoin="round">
+    <!-- pose 1: alas arriba -->
+    <path d="M23 14 C18 11 15 4 10 2 C9 6 6 8 1 8 C5 10 5 14 7 17 C10 14 13 15 15 18 C17 15 20 17 23 19 Z"/>
+    <path d="M23 14 C28 11 31 4 36 2 C37 6 40 8 45 8 C41 10 41 14 39 17 C36 14 33 15 31 18 C29 15 26 17 23 19 Z"/>
+    <ellipse cx="23" cy="17" rx="3.3" ry="6"/>
+    <circle cx="23" cy="10.5" r="3.1"/>
+    <path d="M20.6 9 L20 4.6 L22.6 7.6 Z M25.4 9 L26 4.6 L23.4 7.6 Z"/>
+    <!-- pose 2: alas abajo -->
+    <path d="M69 13 C64 14 60 19 54 25 C57 22 59 23 61 21 C62 23 65 23 67 21 C68 22 69 21 69 19 Z"/>
+    <path d="M69 13 C74 14 78 19 84 25 C81 22 79 23 77 21 C76 23 73 23 71 21 C70 22 69 21 69 19 Z"/>
+    <ellipse cx="69" cy="16" rx="3.3" ry="6"/>
+    <circle cx="69" cy="9.5" r="3.1"/>
+    <path d="M66.6 8 L66 3.6 L68.6 6.6 Z M71.4 8 L72 3.6 L69.4 6.6 Z"/>
+  </g>
+  <g fill="#ffcf6a"><circle cx="21.8" cy="10.2" r="0.7"/><circle cx="24.2" cy="10.2" r="0.7"/><circle cx="67.8" cy="9.2" r="0.7"/><circle cx="70.2" cy="9.2" r="0.7"/></g>
+</svg>

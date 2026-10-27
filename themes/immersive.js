@@ -116,6 +116,72 @@
             src.start(t0, Math.random() * 0.5, o.dur + 0.05);
         },
 
+        // ---- Archivos de audio opcionales (p. ej. una risa grabada) ----
+
+        // Carga y decodifica un archivo. Devuelve una promesa con el AudioBuffer, o null si algo falla
+        // (no existe, formato no soportado, sin audio...): el tema debe tener siempre un sonido de reserva.
+        load(url) {
+            audio._cache = audio._cache || {};
+            if (audio._cache[url]) return audio._cache[url];
+            audio._cache[url] = (async () => {
+                try {
+                    if (!audio.ctx) return null;
+                    const res = await fetch(url);
+                    if (!res.ok) return null;
+                    const data = await res.arrayBuffer();
+                    return await new Promise((ok, fail) => audio.ctx.decodeAudioData(data, ok, fail));
+                } catch (e) { return null; }
+            })();
+            return audio._cache[url];
+        },
+
+        // Reproduce un AudioBuffer. o: { gain?, rate?, send? (0..1 de reverb), when? }
+        playBuffer(buf, o) {
+            if (!buf || !audio.ready()) return;
+            o = o || {};
+            const ctx = audio.ctx;
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            src.playbackRate.value = o.rate || 1;
+            const g = ctx.createGain();
+            g.gain.value = o.gain == null ? 0.8 : o.gain;
+            src.connect(g);
+            g.connect(audio.out);
+            if (o.send) {
+                const s = ctx.createGain();
+                s.gain.value = o.send;
+                g.connect(s);
+                s.connect(audio.reverb());
+            }
+            src.start(o.when || ctx.currentTime);
+        },
+
+        // Reverb compartido (eco de sala grande). Devuelve el nodo de entrada: conectar aquí
+        // lo que deba sonar "lejos". La respuesta al impulso se genera por código.
+        reverb() {
+            if (audio._rev) return audio._rev;
+            const ctx = audio.ctx;
+            const secs = 2.4;
+            const len = Math.floor(ctx.sampleRate * secs);
+            const ir = ctx.createBuffer(2, len, ctx.sampleRate);
+            for (let c = 0; c < 2; c++) {
+                const d = ir.getChannelData(c);
+                let lp = 0;
+                for (let i = 0; i < len; i++) {
+                    lp += (Math.random() * 2 - 1 - lp) * 0.35; // apaga los agudos: suena a lejos
+                    d[i] = lp * Math.pow(1 - i / len, 2.6);
+                }
+            }
+            const conv = ctx.createConvolver();
+            conv.buffer = ir;
+            const wet = ctx.createGain();
+            wet.gain.value = 0.9;
+            conv.connect(wet);
+            wet.connect(audio.out);
+            audio._rev = conv;
+            return conv;
+        },
+
         // Tono con caída o subida de frecuencia. o: { f0, f1?, type?, gain, dur }
         tone(t0, o) {
             const ctx = audio.ctx;
