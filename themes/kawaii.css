@@ -1,0 +1,788 @@
+/* ===================================================
+   ISpeedType — Tema inmersivo: KAWAII (Nube Dulce)
+   Un tema pastel y tierno con una mascota original: Nubi, un conejito de nube.
+   Todo va dentro de body.theme-kawaii: sin la clase, esto no afecta a nada.
+
+   Reglas de rendimiento (ver notas en styles.css):
+     - nada de text-shadow ni animaciones por letra en el texto principal;
+     - las letras solo cambian de color / fondo (se pintan, no recalculan layout);
+     - el fondo flotante, los corazones y el confeti son elementos reutilizables
+       que solo animan transform / opacity (themes/kawaii.js).
+   =================================================== */
+
+body.theme-kawaii {
+    /* Paleta propia del tema */
+    --kw-pink: #ff6fa8;
+    --kw-pink-soft: #ffc2dc;
+    --kw-lilac: #b79bff;
+    --kw-lilac-soft: #e5d9ff;
+    --kw-mint: #5fd3b3;
+    --kw-mint-deep: #0fa88a;
+    --kw-sun: #ffd86b;
+    --kw-ink: #5b3b72;
+
+    /* Variables globales de la app, redefinidas (tema claro y dulce) */
+    --bg-primary: #fff0f7;
+    --bg-secondary: #ffe3f1;
+    --bg-card: rgba(255, 255, 255, 0.94);
+    --bg-card-hover: #ffffff;
+    --bg-input: #ffffff;
+
+    --text-primary: #5b3b72;
+    --text-secondary: #8a68a6;
+    --text-muted: #b79bcb;
+
+    --accent-primary: #ff6fa8;
+    --accent-primary-hover: #ff8fbd;
+    --accent-glow: rgba(255, 111, 168, 0.35);
+    --accent-secondary: #5fd3b3;
+    --accent-secondary-glow: rgba(95, 211, 179, 0.3);
+
+    --color-correct: #0fa88a;
+    --color-correct-bg: rgba(95, 211, 179, 0.16);
+    --color-error: #e8453c;
+    --color-error-bg: rgba(255, 122, 110, 0.2);
+    --color-error-glow: rgba(232, 69, 60, 0.3);
+    --color-current: #7c6cf0;
+    --color-current-bg: rgba(183, 155, 255, 0.28);
+    --color-pending: #b9a6d3;
+
+    --border-color: #ffc2dc;
+    --border-color-hover: #ff8fbd;
+
+    --glow-1: transparent;
+    --glow-2: transparent;
+    --glow-3: transparent;
+
+    --font-sans: 'Fredoka', 'Nunito', 'Quicksand', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+    --font-mono: 'Fredoka', 'Nunito', 'Quicksand', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+
+    --radius-sm: 14px;
+    --radius-md: 20px;
+    --radius-lg: 26px;
+    --radius-xl: 32px;
+
+    color: var(--text-primary);
+    background-color: #ffeaf4;
+    background-image:
+        radial-gradient(circle at 10% 14%, rgba(255, 170, 212, 0.6), transparent 32%),
+        radial-gradient(circle at 92% 10%, rgba(190, 170, 255, 0.55), transparent 34%),
+        radial-gradient(circle at 84% 92%, rgba(150, 236, 214, 0.55), transparent 32%),
+        radial-gradient(circle at 6% 88%, rgba(255, 224, 150, 0.5), transparent 28%);
+    transition: none;
+}
+
+body.theme-kawaii .bg-glow {
+    display: none;
+}
+
+body.theme-kawaii .glass-card,
+body.theme-kawaii .glass-card-mini,
+body.theme-kawaii .theme-dropdown,
+body.theme-kawaii .theme-toggle-btn,
+body.theme-kawaii .achievement-toast {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* ---------- Encabezado ---------- */
+body.theme-kawaii .logo-text {
+    color: var(--kw-pink);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    -webkit-text-stroke: 0;
+}
+
+body.theme-kawaii .logo-accent {
+    color: var(--kw-lilac);
+    background: none;
+    -webkit-text-fill-color: currentColor;
+}
+
+body.theme-kawaii .logo-icon,
+body.theme-kawaii .footer-logo-icon {
+    background: linear-gradient(135deg, #ff8fbd, #b79bff);
+    border: 3px solid #fff;
+    border-radius: 18px;
+    color: #fff;
+    box-shadow: 0 4px 0 #ffc2dc, 0 8px 18px rgba(255, 111, 168, 0.35);
+}
+
+body.theme-kawaii .logo:hover .logo-icon {
+    box-shadow: 0 4px 0 #ffc2dc, 0 10px 22px rgba(255, 111, 168, 0.5);
+}
+
+body.theme-kawaii .tagline {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+body.theme-kawaii .tagline::after {
+    content: ' ✿';
+    color: var(--kw-pink);
+}
+
+body.theme-kawaii .theme-toggle-btn,
+body.theme-kawaii .achievements-toggle-btn,
+body.theme-kawaii .lang-switch,
+body.theme-kawaii .stats-toggle-btn {
+    background: #fff;
+    color: var(--kw-ink);
+    border: 3px solid var(--kw-pink-soft);
+    border-radius: 999px;
+    box-shadow: 0 3px 0 var(--kw-pink-soft);
+}
+
+body.theme-kawaii .theme-toggle-btn:hover,
+body.theme-kawaii .achievements-toggle-btn:hover {
+    border-color: var(--kw-pink);
+    transform: translateY(-1px);
+}
+
+/* ---------- Tarjetas: pegatinas con costura ---------- */
+body.theme-kawaii .glass-card {
+    background: #fff;
+    border: 3px solid var(--kw-pink-soft);
+    border-radius: 30px;
+    box-shadow: 0 6px 0 var(--kw-pink-soft), 0 16px 32px rgba(255, 111, 168, 0.18);
+    outline: 2px dashed #ffd9ea;
+    outline-offset: -11px;
+}
+
+body.theme-kawaii .glass-card:hover {
+    border-color: var(--kw-pink);
+}
+
+body.theme-kawaii .typing-card {
+    border-color: var(--kw-lilac-soft);
+    box-shadow: 0 6px 0 var(--kw-lilac-soft), 0 16px 32px rgba(183, 155, 255, 0.22);
+    outline-color: #efe7ff;
+}
+
+body.theme-kawaii .results-card {
+    border-color: #bff0e2;
+    box-shadow: 0 6px 0 #bff0e2, 0 16px 32px rgba(95, 211, 179, 0.22);
+    outline-color: #dcf8f0;
+}
+
+body.theme-kawaii .glass-card-mini {
+    background: #fff;
+    border: 3px solid var(--kw-pink-soft);
+    border-radius: 22px;
+    box-shadow: 0 4px 0 var(--kw-pink-soft);
+}
+
+body.theme-kawaii .card-header h2,
+body.theme-kawaii .results-title {
+    color: var(--kw-ink);
+    font-weight: 700;
+}
+
+body.theme-kawaii .card-description {
+    color: var(--text-secondary);
+}
+
+body.theme-kawaii .card-description kbd {
+    background: #fff0f7;
+    border: 2px solid var(--kw-pink-soft);
+    border-radius: 10px;
+    color: var(--kw-pink);
+}
+
+body.theme-kawaii .card-icon,
+body.theme-kawaii .results-badge {
+    background: linear-gradient(135deg, #ff8fbd, #b79bff);
+    border: 3px solid #fff;
+    border-radius: 50%;
+    color: #fff;
+    box-shadow: 0 3px 0 var(--kw-pink-soft);
+}
+
+/* Estadísticas: cada una de un color pastel */
+body.theme-kawaii .stat-card:nth-child(1) {
+    border-color: var(--kw-pink-soft);
+    box-shadow: 0 4px 0 var(--kw-pink-soft);
+}
+
+body.theme-kawaii .stat-card:nth-child(2) {
+    border-color: #bff0e2;
+    box-shadow: 0 4px 0 #bff0e2;
+}
+
+body.theme-kawaii .stat-card:nth-child(3) {
+    border-color: #ffe9a8;
+    box-shadow: 0 4px 0 #ffe9a8;
+}
+
+body.theme-kawaii .stat-card:nth-child(4) {
+    border-color: var(--kw-lilac-soft);
+    box-shadow: 0 4px 0 var(--kw-lilac-soft);
+}
+
+body.theme-kawaii #wpm-display {
+    color: var(--kw-pink);
+}
+
+body.theme-kawaii #accuracy-display {
+    color: var(--kw-mint-deep);
+}
+
+body.theme-kawaii #time-display {
+    color: #e69a10;
+}
+
+body.theme-kawaii #errors-display {
+    color: var(--color-error);
+}
+
+body.theme-kawaii .stat-label {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+/* ---------- Botones: caramelos ---------- */
+body.theme-kawaii .btn,
+body.theme-kawaii .btn-practice-start,
+body.theme-kawaii .btn-tutor-start {
+    border: 3px solid #fff;
+    border-radius: 999px;
+    font-weight: 700;
+    box-shadow: 0 5px 0 rgba(91, 59, 114, 0.18), 0 10px 18px rgba(255, 111, 168, 0.2);
+    transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, background 0.2s ease;
+}
+
+body.theme-kawaii .btn:hover,
+body.theme-kawaii .btn-practice-start:hover,
+body.theme-kawaii .btn-tutor-start:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 8px 0 rgba(91, 59, 114, 0.18), 0 14px 22px rgba(255, 111, 168, 0.28);
+}
+
+body.theme-kawaii .btn:active,
+body.theme-kawaii .btn-practice-start:active,
+body.theme-kawaii .btn-tutor-start:active {
+    transform: translateY(3px) scale(0.98);
+    box-shadow: 0 1px 0 rgba(91, 59, 114, 0.18);
+}
+
+body.theme-kawaii .btn::after {
+    display: none;
+}
+
+body.theme-kawaii .btn-primary {
+    background: linear-gradient(135deg, #ff8fbd, #ff6fa8);
+    color: #fff;
+}
+
+body.theme-kawaii .btn-secondary {
+    background: linear-gradient(135deg, #8fe6cd, #5fd3b3);
+    color: #fff;
+}
+
+body.theme-kawaii .btn-ghost {
+    background: #fff;
+    color: var(--kw-ink);
+    border-color: var(--kw-lilac-soft);
+}
+
+body.theme-kawaii .btn-ghost:hover {
+    background: #f6f0ff;
+    border-color: var(--kw-lilac);
+}
+
+body.theme-kawaii .btn-practice-start {
+    background: linear-gradient(135deg, #ffe58f, #ffd86b);
+    color: #7a4b00;
+}
+
+body.theme-kawaii .btn-tutor-start {
+    background: linear-gradient(135deg, #cdbcff, #b79bff);
+    color: #fff;
+}
+
+body.theme-kawaii .btn-diff {
+    background: #fff;
+    border: 3px solid var(--kw-lilac-soft);
+    border-radius: 999px;
+    color: var(--kw-ink);
+    box-shadow: 0 3px 0 var(--kw-lilac-soft);
+}
+
+body.theme-kawaii .btn-diff:hover {
+    border-color: var(--kw-pink);
+    background: #fff0f7;
+    color: var(--kw-pink);
+}
+
+body.theme-kawaii .btn-diff.active {
+    background: var(--kw-pink);
+    border-color: var(--kw-pink);
+    color: #fff;
+    box-shadow: 0 3px 0 #d94b86;
+}
+
+body.theme-kawaii .btn-diff.diff-hardcore.active {
+    background: #ff7a6e;
+    border-color: #ff7a6e;
+    box-shadow: 0 3px 0 #c9483d;
+}
+
+/* Interruptores */
+body.theme-kawaii .slider {
+    background-color: var(--kw-lilac-soft);
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px var(--kw-lilac-soft);
+}
+
+body.theme-kawaii .slider::before {
+    background-color: #fff;
+}
+
+body.theme-kawaii .switch-toggle input:checked+.slider {
+    background-color: var(--kw-pink);
+    border-color: #fff;
+    box-shadow: 0 0 0 2px var(--kw-pink-soft);
+}
+
+body.theme-kawaii .switch-toggle input:checked+.slider::before {
+    background-color: #fff;
+    box-shadow: none;
+}
+
+/* ---------- Campos de texto ---------- */
+body.theme-kawaii .text-input,
+body.theme-kawaii .typing-input {
+    background: #fff;
+    color: var(--kw-ink);
+    border: 3px solid var(--kw-lilac-soft);
+    border-radius: 22px;
+    caret-color: var(--kw-pink);
+    box-shadow: inset 0 2px 0 rgba(183, 155, 255, 0.12);
+}
+
+body.theme-kawaii .text-input::placeholder,
+body.theme-kawaii .typing-input::placeholder {
+    color: #b9a6d3;
+}
+
+body.theme-kawaii .text-input:focus,
+body.theme-kawaii .typing-input:focus {
+    border-color: var(--kw-pink);
+    box-shadow: 0 0 0 5px rgba(255, 111, 168, 0.2);
+    outline: none;
+}
+
+body.theme-kawaii .typing-input.has-error {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 5px rgba(255, 122, 110, 0.22);
+    animation: none;
+}
+
+body.theme-kawaii .typing-input.on-fire-border {
+    border-color: var(--kw-mint) !important;
+    box-shadow: 0 0 0 5px rgba(95, 211, 179, 0.28) !important;
+}
+
+body.theme-kawaii .typing-card.on-fire {
+    border-color: var(--kw-mint) !important;
+    box-shadow: 0 6px 0 #bff0e2, 0 16px 32px rgba(95, 211, 179, 0.3) !important;
+}
+
+/* ---------- Texto a escribir ---------- */
+body.theme-kawaii #text-display {
+    font-size: 1.28rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    scrollbar-color: var(--kw-pink) transparent;
+}
+
+body.theme-kawaii #text-display::-webkit-scrollbar-thumb {
+    background: var(--kw-pink);
+}
+
+/* Sin transición de color: la letra cambia al instante (el "pop" lo pone el JS) */
+body.theme-kawaii #text-display .char {
+    transition: none;
+    border-radius: 6px;
+}
+
+body.theme-kawaii #text-display .char.char-pending {
+    color: var(--color-pending);
+}
+
+body.theme-kawaii #text-display .char.char-correct {
+    color: var(--color-correct);
+    background: transparent;
+}
+
+/* Con la racha la app fuerza verde; aquí se mantiene el menta del tema */
+body.theme-kawaii #text-display.on-fire .char.char-correct {
+    color: var(--kw-mint-deep) !important;
+}
+
+/* Error: coral con subrayado ondulado (sin sombras por letra) */
+body.theme-kawaii #text-display .char.char-error {
+    color: var(--color-error);
+    background-color: var(--color-error-bg);
+    text-decoration: underline wavy var(--color-error);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 4px;
+}
+
+/* ---------- Combo: barra de caramelo ---------- */
+body.theme-kawaii #combo-stat-card {
+    position: relative;
+    overflow: hidden;
+    border-color: #ffe9a8;
+    box-shadow: 0 4px 0 #ffe9a8;
+}
+
+body.theme-kawaii #combo-stat-card::after {
+    content: '';
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 9px;
+    height: 7px;
+    border-radius: 99px;
+    background:
+        linear-gradient(90deg, var(--kw-pink) calc(var(--kw-fill, 0) * 100%), #f4e8ff calc(var(--kw-fill, 0) * 100%));
+}
+
+body.theme-kawaii .combo-highlight {
+    color: var(--kw-pink);
+    text-shadow: none;
+}
+
+/* Racha: el borde de la caja de texto cambia de color como un arcoíris suave */
+body.theme-kawaii .typing-card.kw-rainbow {
+    animation: kw-rainbow 3s linear infinite;
+}
+
+@keyframes kw-rainbow {
+    0% {
+        border-color: #ff8fbd;
+    }
+
+    25% {
+        border-color: #ffd86b;
+    }
+
+    50% {
+        border-color: #5fd3b3;
+    }
+
+    75% {
+        border-color: #b79bff;
+    }
+
+    100% {
+        border-color: #ff8fbd;
+    }
+}
+
+/* ---------- Barra de progreso: caramelo rayado ---------- */
+body.theme-kawaii .progress-bar-container {
+    height: 14px;
+    background: #fff;
+    border: 3px solid var(--kw-pink-soft);
+    border-radius: 99px;
+}
+
+body.theme-kawaii .progress-bar-fill {
+    border-radius: 99px;
+    box-shadow: none;
+    background: repeating-linear-gradient(-45deg, #ff8fbd 0 10px, #ffb3d3 10px 20px);
+}
+
+body.theme-kawaii .progress-bar-fill::after {
+    display: none;
+}
+
+body.theme-kawaii .progress-text {
+    color: var(--kw-pink);
+    font-weight: 700;
+}
+
+/* ---------- Menú de temas ---------- */
+body.theme-kawaii .theme-dropdown {
+    background: #fff;
+    border: 3px solid var(--kw-pink-soft);
+    border-radius: 24px;
+    box-shadow: 0 5px 0 var(--kw-pink-soft), 0 14px 28px rgba(255, 111, 168, 0.25);
+}
+
+body.theme-kawaii .theme-option,
+body.theme-kawaii .immersive-option {
+    color: var(--text-secondary);
+    border-radius: 14px;
+}
+
+body.theme-kawaii .theme-option:hover,
+body.theme-kawaii .immersive-option:hover,
+body.theme-kawaii .immersive-option:focus-visible {
+    background: #fff0f7;
+    color: var(--kw-ink);
+    border-color: var(--kw-pink-soft);
+}
+
+body.theme-kawaii .immersive-option.active {
+    background: #fff0f7;
+    color: var(--kw-pink);
+    border-color: var(--kw-pink);
+}
+
+body.theme-kawaii .immersive-sound {
+    border-radius: 14px;
+    border-color: var(--kw-pink-soft);
+}
+
+/* Miniatura del menú */
+.swatch-kawaii {
+    background:
+        radial-gradient(circle at 30% 30%, #fff 0 18%, transparent 20%),
+        linear-gradient(135deg, #ffc2dc, #e5d9ff 55%, #bff0e2);
+    box-shadow: inset 0 0 0 2px #fff, 0 0 0 1px #ff8fbd;
+}
+
+/* ---------- Pie de página y otros elementos oscuros por defecto ---------- */
+body.theme-kawaii .site-footer {
+    background: #fff;
+    border-top: 3px dashed var(--kw-pink-soft);
+}
+
+/* =====================================================
+   Fondo flotante (capa fija detrás del contenido)
+   ===================================================== */
+.kw-fx {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.85) 2.5px, transparent 3px);
+    background-size: 34px 34px;
+}
+
+.kw-float {
+    position: absolute;
+    bottom: -60px;
+    line-height: 1;
+    opacity: 0.55;
+    transform: translateY(0);
+    animation: kw-rise linear infinite;
+    will-change: transform;
+}
+
+@keyframes kw-rise {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    50% {
+        transform: translate(24px, -55vh) rotate(18deg);
+    }
+
+    100% {
+        transform: translate(-10px, -115vh) rotate(-12deg);
+    }
+}
+
+/* =====================================================
+   Nubi, la mascota (conejito de nube) + globo de diálogo
+   ===================================================== */
+.kw-mascot {
+    position: fixed;
+    right: 18px;
+    bottom: 14px;
+    z-index: 6;
+    width: 118px;
+    pointer-events: none;
+    transform-origin: 50% 100%;
+    animation: kw-idle 3.2s ease-in-out infinite;
+}
+
+.kw-mascot svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 6px 0 rgba(255, 194, 220, 0.8));
+}
+
+@keyframes kw-idle {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1, 1);
+    }
+
+    50% {
+        transform: translateY(-5px) scale(1.02, 0.98);
+    }
+}
+
+/* Caras: solo una visible según el estado */
+.kw-mascot .kw-eyes-sad,
+.kw-mascot .kw-eyes-wow,
+.kw-mascot .kw-mouth-sad,
+.kw-mascot .kw-mouth-wow {
+    display: none;
+}
+
+.kw-mascot.is-sad .kw-eyes-happy,
+.kw-mascot.is-sad .kw-mouth-happy,
+.kw-mascot.is-wow .kw-eyes-happy,
+.kw-mascot.is-wow .kw-mouth-happy {
+    display: none;
+}
+
+.kw-mascot.is-sad .kw-eyes-sad,
+.kw-mascot.is-sad .kw-mouth-sad,
+.kw-mascot.is-wow .kw-eyes-wow,
+.kw-mascot.is-wow .kw-mouth-wow {
+    display: inline;
+}
+
+.kw-bubble {
+    position: absolute;
+    right: 70%;
+    bottom: 92%;
+    min-width: 96px;
+    max-width: 190px;
+    padding: 8px 14px;
+    background: #fff;
+    border: 3px solid var(--kw-pink-soft, #ffc2dc);
+    border-radius: 18px;
+    color: #5b3b72;
+    font: 600 0.85rem/1.25 'Fredoka', 'Nunito', ui-rounded, system-ui, sans-serif;
+    text-align: center;
+    white-space: normal;
+    opacity: 0;
+    transform: scale(0.6);
+    transform-origin: 100% 100%;
+    box-shadow: 0 3px 0 #ffc2dc;
+}
+
+.kw-bubble::after {
+    content: '';
+    position: absolute;
+    right: 14px;
+    bottom: -11px;
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    border-right: 3px solid #ffc2dc;
+    border-bottom: 3px solid #ffc2dc;
+    transform: rotate(45deg);
+    border-bottom-right-radius: 4px;
+}
+
+.kw-bubble.is-on {
+    opacity: 1;
+    transform: scale(1);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s;
+}
+
+/* Corazones / estrellas al acertar (elementos reutilizables) */
+.kw-pops {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 40;
+}
+
+.kw-pop {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    font-size: 18px;
+    line-height: 1;
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+
+.kw-confetti {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 10px;
+    height: 14px;
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 9996;
+    will-change: transform, opacity;
+}
+
+/* Cartel de fin de partida */
+.kw-banner {
+    position: fixed;
+    left: 50%;
+    top: 40%;
+    z-index: 9996;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    pointer-events: none;
+    padding: 16px 38px;
+    font: 700 clamp(1.6rem, 6vw, 3rem)/1.1 'Fredoka', 'Nunito', ui-rounded, system-ui, sans-serif;
+    white-space: nowrap;
+    background: #fff;
+    border: 4px solid #ffc2dc;
+    border-radius: 999px;
+    box-shadow: 0 8px 0 #ffc2dc, 0 18px 40px rgba(255, 111, 168, 0.35);
+}
+
+.kw-banner.is-good {
+    color: var(--kw-pink, #ff6fa8);
+}
+
+.kw-banner.is-bad {
+    color: #8a68a6;
+    border-color: #e5d9ff;
+    box-shadow: 0 8px 0 #e5d9ff, 0 18px 40px rgba(183, 155, 255, 0.35);
+}
+
+/* En pantallas chicas la mascota estorbaría al teclado */
+@media (max-width: 900px) {
+    .kw-mascot {
+        width: 84px;
+        right: 8px;
+        bottom: 8px;
+    }
+
+    .kw-bubble {
+        display: none;
+    }
+}
+
+/* ---------- Accesibilidad: sin movimiento extra ---------- */
+@media (prefers-reduced-motion: reduce) {
+
+    .kw-float,
+    .kw-mascot,
+    body.theme-kawaii .typing-card.kw-rainbow {
+        animation: none;
+    }
+
+    .kw-float {
+        display: none;
+    }
+}
+
+/* Aviso de "Modo Práctica": texto oscuro para que se lea sobre el fondo pastel */
+body.theme-kawaii .practice-mode-banner {
+    background: #fff4d6;
+    border: 3px solid #ffe9a8;
+    border-radius: 999px;
+    color: #8a5a00;
+}
+
+body.theme-kawaii .practice-mode-banner strong,
+body.theme-kawaii .practice-mode-banner b {
+    color: #b36b00;
+}
