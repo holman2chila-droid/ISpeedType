@@ -24,7 +24,8 @@
         { id: 'vidas', get nombre() { return modeName('vidas'); }, icono: '❤️' },
         { id: 'desvanecer', get nombre() { return modeName('desvanecer'); }, icono: '👻' },
         { id: 'tormenta', get nombre() { return modeName('tormenta'); }, icono: '⚡' },
-        { id: 'punto-muerto', get nombre() { return modeName('punto-muerto'); }, icono: '🔒' }
+        { id: 'punto-muerto', get nombre() { return modeName('punto-muerto'); }, icono: '🔒' },
+        { id: 'asedio', get nombre() { return modeName('asedio'); }, icono: '🎯' }
     ];
     const NOMBRE_MODO = {};
     MODOS.forEach(m => { NOMBRE_MODO[m.id] = true; });

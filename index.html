@@ -51,6 +51,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="online.css">
+    <link rel="stylesheet" href="asedio.css">
     <link rel="stylesheet" href="themes/immersive.css">
     <link rel="stylesheet" href="themes/graffiti.css">
     <link rel="stylesheet" href="themes/manga.css">
@@ -405,6 +406,21 @@
                         </div>
                     </div>
 
+                    <!-- Modo Asedio (infinito, roguelike) -->
+                    <div class="asedio-entry-card">
+                        <div class="asedio-entry-info">
+                            <span class="asedio-entry-title">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <circle cx="12" cy="12" r="9" stroke-dasharray="3 3"></circle>
+                                </svg>
+                                <span data-i18n="ui.asedio-title">Modo Asedio</span>
+                            </span>
+                            <span data-i18n="ui.asedio-subtitle" class="asedio-entry-subtitle">Defiende el núcleo: las palabras llegan desde todos los lados. Oleadas infinitas, cada una más dura.</span>
+                        </div>
+                        <button data-i18n="ui.btn-asedio-start" type="button" class="btn btn-tutor-start" id="btn-asedio-start">Jugar</button>
+                    </div>
+
                     <div class="random-text-container">
                         <p data-i18n="ui.random-text-title" class="random-text-title">¿No tienes texto? Selecciona una categoría:</p>
                         <div class="random-buttons">
@@ -593,6 +609,52 @@
                         Nuevo texto
                     </button>
                 </div>
+            </div>
+        </section>
+
+        <!-- ===== MODO ASEDIO (infinito, roguelike) ===== -->
+        <section id="asedio-section" class="section asedio-section hidden">
+            <div class="stats-bar">
+                <div class="stat-card glass-card-mini">
+                    <span data-i18n="asedio.wave" class="stat-label">Oleada</span>
+                    <span id="asedio-wave" class="stat-value">1</span>
+                </div>
+                <div class="stat-card glass-card-mini">
+                    <span data-i18n="asedio.score" class="stat-label">Puntos</span>
+                    <span id="asedio-score" class="stat-value">0</span>
+                </div>
+                <div class="stat-card glass-card-mini">
+                    <span data-i18n="ui.stat-lives" class="stat-label">Vidas</span>
+                    <span id="asedio-lives" class="stat-value lives-highlight">5</span>
+                </div>
+                <div class="stat-card glass-card-mini">
+                    <span data-i18n="ui.combo-label" class="stat-label">Combo</span>
+                    <span class="stat-value combo-highlight"><span id="asedio-combo">0</span><small>x</small></span>
+                </div>
+            </div>
+
+            <div id="asedio-container" class="card glass-card" aria-label="Asedio">
+                <div id="asedio-core" aria-hidden="true"></div>
+                <div id="asedio-banner" class="hidden" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="typing-input-wrapper">
+                <input data-i18n-attr="placeholder:asedio.placeholder" id="asedio-input" class="typing-input" type="text" placeholder="Escribe la palabra y pulsa Espacio…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            </div>
+
+            <p class="typing-hint">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <span data-i18n-html="asedio.hint">Escribe la palabra y pulsa <kbd>Espacio</kbd> o <kbd>Enter</kbd> para destruirla. <kbd>Esc</kbd> pausa.</span>
+            </p>
+
+            <div class="controls">
+                <button type="button" id="asedio-pause-btn" class="btn btn-secondary"><span data-i18n="asedio.pause">Pausa</span></button>
+                <button type="button" id="asedio-restart-btn" class="btn btn-secondary"><span data-i18n="asedio.restart">Reiniciar</span></button>
+                <button type="button" id="asedio-exit-btn" class="btn btn-ghost"><span data-i18n="asedio.exit">Salir</span></button>
             </div>
         </section>
 
@@ -901,6 +963,7 @@
     <script src="themes/cyberpunk.js"></script>
     <script src="themes/halloween.js"></script>
     <script src="app.js"></script>
+    <script src="asedio.js"></script>
     <script src="online.js"></script>
 </body>
 </html>

@@ -1,0 +1,272 @@
+/* ===================================================
+   ISpeedType — MODO ASEDIO (estilos)
+   Todo el color sale de las variables globales del sitio (--accent-*, --bg-*, --text-*,
+   --color-*, --border-color...): así el núcleo, las palabras y los efectos cambian solos
+   con el tema claro/oscuro/violeta/... y con los temas inmersivos.
+   =================================================== */
+
+.asedio-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.asedio-section .stats-bar {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* ---------- Espacio de juego ---------- */
+#asedio-container {
+    position: relative;
+    overflow: hidden;
+    height: 470px;
+    padding: 0;
+    cursor: text;
+    touch-action: manipulation;
+    isolation: isolate;
+    background:
+        radial-gradient(circle at 50% 50%, var(--accent-glow, transparent) 0, transparent 55%),
+        var(--bg-card);
+}
+
+/* Anillos de "radar" alrededor del núcleo (decorativos, estáticos) */
+#asedio-container::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(88%, 420px);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px dashed var(--border-color);
+    box-shadow: 0 0 0 70px transparent, inset 0 0 0 70px transparent;
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ---------- Núcleo ---------- */
+#asedio-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    z-index: 2;
+    background: radial-gradient(circle at 35% 30%, #fff 0, var(--accent-primary) 38%, var(--accent-secondary, var(--accent-primary)) 100%);
+    border: 2px solid var(--accent-primary);
+    box-shadow: 0 0 14px 2px var(--accent-glow, var(--accent-primary));
+    animation: asedio-pulse 2.2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+#asedio-core::after {
+    content: '';
+    position: absolute;
+    inset: 16px;
+    border-radius: 50%;
+    background: var(--bg-primary);
+    opacity: 0.55;
+}
+
+@keyframes asedio-pulse {
+    0%, 100% { box-shadow: 0 0 12px 2px var(--accent-glow, var(--accent-primary)); }
+    50%      { box-shadow: 0 0 30px 10px var(--accent-glow, var(--accent-primary)); }
+}
+
+/* Daño: destello rojo y temblor corto (el transform de centrado se conserva) */
+#asedio-core.is-hit {
+    animation: asedio-damage 0.5s ease-out;
+    border-color: #ff4d57;
+}
+
+@keyframes asedio-damage {
+    0%   { box-shadow: 0 0 0 0 rgba(255, 77, 87, 0.9); background: #ff4d57; transform: translate(-50%, -50%) scale(1.22); }
+    25%  { box-shadow: 0 0 40px 16px rgba(255, 77, 87, 0.8); transform: translate(-50%, -50%) scale(0.92); }
+    50%  { background: #ff4d57; transform: translate(-50%, -50%) scale(1.1); }
+    100% { box-shadow: 0 0 12px 2px var(--accent-glow, var(--accent-primary)); transform: translate(-50%, -50%) scale(1); }
+}
+
+#asedio-container.is-over #asedio-core {
+    animation: none;
+    filter: grayscale(1) brightness(0.6);
+    border-color: var(--border-color);
+}
+
+/* ---------- Palabras ---------- */
+.asedio-word {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    will-change: transform;
+    transform: translate3d(-9999px, 0, 0);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    font-family: inherit;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+}
+
+.asedio-word-body {
+    display: inline-block;
+    padding: 5px 12px;
+    color: var(--text-primary);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm, 8px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    transition: border-color 0.1s, box-shadow 0.1s;
+}
+
+/* Lo ya escrito en la palabra con más progreso */
+.asedio-typed {
+    background: transparent;
+    color: var(--color-correct, #34d399);
+    text-shadow: 0 0 8px var(--accent-glow, transparent);
+}
+
+.asedio-typed:empty {
+    display: none;
+}
+
+.asedio-word.is-target .asedio-word-body {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 14px var(--accent-glow, var(--accent-primary));
+}
+
+/* Otras palabras que también empiezan igual */
+.asedio-word.is-candidate .asedio-word-body {
+    border-style: dashed;
+    border-color: var(--accent-primary);
+}
+
+/* "Blindado": letras con números y símbolos */
+.asedio-word.is-armored .asedio-word-body {
+    border-width: 2px;
+    border-color: var(--text-muted);
+    background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgba(128, 128, 128, 0.12) 6px 8px);
+}
+
+.asedio-word.is-armored.is-target .asedio-word-body {
+    border-color: var(--accent-primary);
+}
+
+/* Efectos de salida (rápidos; el nodo se retira justo después). Van en el cuerpo para
+   no pisar el transform de posición del contenedor de la palabra. */
+.asedio-word.is-destroyed .asedio-word-body {
+    animation: asedio-pop 0.18s ease-out forwards;
+    border-color: var(--color-correct, #34d399);
+}
+
+.asedio-word.is-crashed .asedio-word-body {
+    animation: asedio-crash 0.2s ease-in forwards;
+    border-color: #ff4d57;
+    color: #ff8a90;
+}
+
+@keyframes asedio-pop {
+    0%   { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; filter: blur(2px); }
+}
+
+@keyframes asedio-crash {
+    0%   { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.2); opacity: 0; }
+}
+
+/* ---------- Mensajes ---------- */
+#asedio-banner {
+    position: absolute;
+    left: 50%;
+    top: 22%;
+    transform: translateX(-50%);
+    z-index: 3;
+    padding: 8px 20px;
+    max-width: 92%;
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--accent-primary);
+    background: var(--bg-card);
+    border: 1px solid var(--accent-primary);
+    border-radius: var(--radius-md, 12px);
+    box-shadow: 0 0 18px var(--accent-glow, transparent);
+    pointer-events: none;
+}
+
+#asedio-banner.hidden {
+    display: none;
+}
+
+#asedio-container.is-paused .asedio-word,
+#asedio-container.is-paused #asedio-core {
+    opacity: 0.35;
+}
+
+#asedio-container.is-paused #asedio-core {
+    animation-play-state: paused;
+}
+
+/* ---------- Entrada y controles ---------- */
+.asedio-section .typing-input-wrapper {
+    margin-top: 0;
+}
+
+.asedio-section .controls {
+    margin-top: 0;
+}
+
+/* ---------- Tarjeta del menú ---------- */
+.asedio-entry-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: var(--radius-lg, 16px);
+    border: 1px solid var(--border-color);
+    background: var(--bg-input);
+}
+
+.asedio-entry-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.asedio-entry-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.asedio-entry-subtitle {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+@media (max-width: 600px) {
+    #asedio-container { height: 400px; }
+    .asedio-word { font-size: 1.05rem; }
+    .asedio-entry-card { flex-direction: column; align-items: stretch; }
+    .asedio-section .stats-bar { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #asedio-core { animation: none; }
+    .asedio-word.is-destroyed .asedio-word-body,
+    .asedio-word.is-crashed .asedio-word-body { animation-duration: 0.01s; }
+}

@@ -8,6 +8,7 @@
 
     // ===== DOM Elements =====
     const setupSection = document.getElementById('setup-section');
+    const asedioSection = document.getElementById('asedio-section');
     const typingSection = document.getElementById('typing-section');
     const resultsSection = document.getElementById('results-section');
 
@@ -366,7 +367,11 @@
         // --- Controls ---
         restartBtn.addEventListener('click', restartTest);
         newTextBtn.addEventListener('click', volverAlLobby);
-        resultsRestartBtn.addEventListener('click', restartTest);
+        resultsRestartBtn.addEventListener('click', () => {
+            // Modos externos (Asedio) se reinician a sí mismos; el resto usa el reinicio normal
+            if (externalMode && externalHandlers && externalHandlers.restart) externalHandlers.restart();
+            else restartTest();
+        });
         resultsNewBtn.addEventListener('click', volverAlLobby);
 
         // Click text display to focus input
@@ -1849,6 +1854,11 @@
         ach('fade-40', 'Sombra Persistente', 'Completar un texto en Modo Desvanecimiento a velocidad "Medio" (40 WPM).', 'modos', '👻'),
         ach('fade-60', 'Cazador de Sombras', 'Completar un texto en Modo Desvanecimiento a velocidad "Rápido" (60 WPM).', 'modos', '🕯️'),
         ach('fade-80', 'Dueño de la Sombra', 'Completar un texto en Modo Desvanecimiento a velocidad "Pro" (80 WPM).', 'modos', '🌑'),
+        ach('asedio-3', 'Muralla Firme', 'Superar 3 oleadas en el Modo Asedio.', 'modos', '🛡️'),
+        ach('asedio-6', 'Defensor del Núcleo', 'Superar 6 oleadas en el Modo Asedio.', 'modos', '🏰'),
+        ach('asedio-10', 'Inquebrantable', 'Superar 10 oleadas en el Modo Asedio.', 'modos', '⚔️'),
+        ach('asedio-15', 'Leyenda del Asedio', 'Superar 15 oleadas en el Modo Asedio.', 'modos', '🐲'),
+        ach('asedio-combo-25', 'Lluvia de Palabras', 'Destruir 25 palabras seguidas en el Modo Asedio sin fallar ni perder vidas.', 'modos', '☄️'),
         ach('storm-facil', 'Llovizna', 'Completar un texto en Tormenta Eléctrica con intensidad "Fácil".', 'modos', '🌦️'),
         ach('storm-medio', 'Aguacero', 'Completar un texto en Tormenta Eléctrica con intensidad "Medio".', 'modos', '🌧️'),
         ach('storm-pro', 'Tempestad', 'Completar un texto en Tormenta Eléctrica con intensidad "Pro".', 'modos', '⛈️'),
@@ -2455,6 +2465,7 @@
 
     // ===== Go to Setup =====
     function goToSetup() {
+        leaveExternalMode();
         cancelOnline();
         stopFadeLoop();
         clearStorm();
@@ -2825,6 +2836,7 @@
 
     // Nombre de la "pestaña" (ruta) del modo actual: #lobby/<modo>
     function nombreModoActual() {
+        if (externalMode) return externalMode;
         if (isTutorMode) return 'aprendizaje';
         if (isLivesMode) return 'vidas';
         if (isFadeMode) return 'desvanecer';
@@ -2907,10 +2919,14 @@
         typingSection.classList.add('hidden');
         resultsSection.classList.add('hidden');
         if (tutorSection) tutorSection.classList.add('hidden');
+        if (asedioSection) asedioSection.classList.add('hidden');
+        // Los extras de resultados (p. ej. oleada y puntos del Asedio) solo viven en la pantalla de resultados
+        if (name !== 'results') clearResultExtras();
 
         const target = name === 'setup' ? setupSection :
                        name === 'typing' ? typingSection :
                        name === 'results' ? resultsSection :
+                       name === 'asedio' ? asedioSection :
                        name === 'tutor' ? tutorSection : null;
 
         if (target) {
@@ -2957,6 +2973,89 @@
         if (window.SpeedStats && window.SpeedStats.refreshLanguage) window.SpeedStats.refreshLanguage();
     }
     window.I18N.onChange(refreshDynamicLanguage);
+
+    // ===== Modos externos (Modo Asedio, asedio.js) =====
+    // Un modo externo trae su propia pantalla (#<modo>-section) y usa la pantalla de resultados,
+    // el historial de estadísticas y el Salón de Logros del sitio a través de ISpeedTypeBridge.
+    let externalMode = null;
+    let externalHandlers = null;
+
+    function clearResultExtras() {
+        document.querySelectorAll('.results-grid .result-extra').forEach((n) => n.remove());
+    }
+
+    function leaveExternalMode() {
+        if (!externalMode) return;
+        const h = externalHandlers;
+        externalMode = null;
+        externalHandlers = null;
+        clearResultExtras();
+        if (h && h.exit) { try { h.exit(); } catch (e) { console.warn(e); } }
+    }
+
+    window.ISpeedTypeBridge = {
+        // Entra en un modo externo: oculta el resto de pantallas y muestra #<modo>-section.
+        // handlers: { restart(): reinicia la partida, exit(): limpia al volver al lobby }
+        enterMode(name, handlers) {
+            cancelOnline();
+            if (isTutorMode) exitTutorMode();
+            hideAntiCheatWarning();
+            isEligibleForAchievements = true;
+            externalMode = name;
+            externalHandlers = handlers || null;
+            resultsCard.classList.remove('game-over-state', 'ghost-over-state');
+            showSection(name);
+        },
+        showSection(name) { showSection(name); },
+        exitToLobby() { volverAlLobby(); },
+        // Salón de Logros (respeta el interruptor anti-trampas)
+        unlockAchievement(id) { unlockAchievement(id); },
+        // Muestra la pantalla de resultados del sitio y registra la partida en las estadísticas.
+        // o: { kind:'gameover'|'ok', wpm, accuracy, seconds, errors, chars, words, keys, dif, subtitle, extras:[{label,value}] }
+        showResults(o) {
+            const wpm = Math.round(o.wpm || 0);
+            const accuracy = Math.round(o.accuracy == null ? 100 : o.accuracy);
+            const secs = Math.round(o.seconds || 0);
+            resultWpm.textContent = wpm;
+            resultAccuracy.textContent = accuracy + '%';
+            resultTime.textContent = formatTime(secs);
+            resultErrors.textContent = o.errors || 0;
+
+            resultsCard.classList.remove('ghost-over-state');
+            resultsCard.classList.toggle('game-over-state', o.kind === 'gameover');
+            setResultsTexts(o.kind === 'gameover' ? 'gameover' : 'ok');
+            if (o.subtitle) resultsSubtitle.textContent = o.subtitle;
+
+            clearResultExtras();
+            const grid = document.querySelector('.results-grid');
+            (o.extras || []).forEach((x) => {
+                const item = document.createElement('div');
+                item.className = 'result-item result-extra';
+                const num = document.createElement('span');
+                num.className = 'result-number';
+                num.textContent = x.value;
+                const lab = document.createElement('span');
+                lab.className = 'result-label';
+                lab.textContent = x.label;
+                item.appendChild(num);
+                item.appendChild(lab);
+                grid.appendChild(item);
+            });
+
+            // Estadísticas (historial, precisión, teclas): mismas reglas anti-trampas que el resto de modos
+            if (window.SpeedStats && isEligibleForAchievements && wpm <= MAX_HUMAN_WPM) {
+                try {
+                    window.SpeedStats.record({
+                        result: o.kind === 'gameover' ? 'gameover' : 'ok',
+                        wpm, acc: accuracy, secs, errors: o.errors || 0,
+                        chars: o.chars || 0, words: o.words || 0,
+                        mode: externalMode || 'clasico', dif: o.dif || '', keys: o.keys
+                    });
+                } catch (err) { console.warn('No se pudo registrar la partida:', err); }
+            }
+            setTimeout(() => { if (externalMode) showSection('results'); }, 450);
+        }
+    };
 
     // ===== API para el modo online (online.js) =====
     // El texto lo elige el servidor; aquí solo se arranca la prueba normal con él,

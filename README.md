@@ -38,6 +38,7 @@
 | 👻 **Desvanecimiento** | El texto se desvanece mientras escribes: ¡no te dejes alcanzar! 4 velocidades (20 a 80 WPM). |
 | ⚡ **Tormenta Eléctrica** | Cada pocos segundos varias letras se transforman en símbolos (`@`, `#`, `$`, `*`). 4 intensidades. |
 | 🔒 **Punto Muerto** | Algunas teclas se "rompen" y debes saltarlas con `[Espacio]`. De 2 a 5 teclas rotas. |
+| 🎯 **Asedio** | Modo infinito tipo roguelike: las palabras llegan desde los bordes hacia tu núcleo; escríbelas y pulsa `[Espacio]`/`[Enter]` para destruirlas. Oleadas cada vez más rápidas, con palabras blindadas (`v3locid@d`) y ráfagas masivas. 5 vidas. |
 | 🎓 **Aprendizaje** | Curso guiado de mecanografía desde cero, con 6 niveles. |
 
 También puedes **pegar tu propio texto** o elegir una categoría (corto, sin tildes / sin apóstrofos en inglés, filosofía, romance, dichos y refranes, cuento clásico, largo...).

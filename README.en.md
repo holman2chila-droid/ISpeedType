@@ -17,7 +17,7 @@
 ## ✨ Features
 
 - **Live WPM, accuracy, time and error tracking.**
-- **Unique game modes**: Lives, Fade, Lightning Storm, Dead Zone, plus a Classic mode.
+- **Unique game modes**: Lives, Fade, Lightning Storm, Dead Zone, Siege (endless roguelike waves of words flying at your core), plus a Classic mode.
 - **Learning Mode**: 6 progressive levels with an on-screen keyboard and hands guide (US layout in English).
 - **53 achievements** in 6 categories, from *Warming Up* to *Ultra Instinct* (110+ WPM).
 - **Statistics panel** with history, charts, records and your most-missed keys.
