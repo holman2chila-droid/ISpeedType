@@ -367,9 +367,17 @@ body.theme-manga .typing-input::placeholder {
 }
 
 /* ---------- Texto a escribir ---------- */
+/* Bangers solo tiene letras tipo mayúscula: el texto a escribir usa Londrina Solid
+   (también de cómic, pero con mayúsculas y minúsculas distintas) */
+body.theme-manga #text-display,
+body.theme-manga .text-input,
+body.theme-manga .typing-input {
+    font-family: 'Londrina Solid', 'Bangers', 'Impact', 'Arial Narrow Bold', sans-serif;
+}
+
 body.theme-manga #text-display {
-    font-size: 1.45rem;
-    letter-spacing: 0.07em;
+    font-size: 1.5rem;
+    letter-spacing: 0.05em;
     line-height: 1.7;
     scrollbar-color: var(--mg-ink) transparent;
 }

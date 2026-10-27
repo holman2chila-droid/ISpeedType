@@ -331,9 +331,17 @@ body.theme-graffiti .typing-input.has-error {
 }
 
 /* ---------- Texto a escribir ---------- */
+/* Permanent Marker casi no distingue mayúsculas de minúsculas: el texto a escribir usa
+   Caveat Brush (mismo trazo de rotulador, pero con minúsculas claras) */
+body.theme-graffiti #text-display,
+body.theme-graffiti .text-input,
+body.theme-graffiti .typing-input {
+    font-family: 'Caveat Brush', 'Permanent Marker', 'Marker Felt', 'Comic Sans MS', cursive;
+}
+
 body.theme-graffiti #text-display {
-    font-size: 1.3rem;
-    letter-spacing: 0.05em;
+    font-size: 1.55rem;
+    letter-spacing: 0.04em;
     scrollbar-color: var(--gf-pink) transparent;
 }
 

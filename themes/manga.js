@@ -389,7 +389,7 @@
 
     T.register('manga', {
         bodyClass: 'theme-manga',
-        fontHref: 'https://fonts.googleapis.com/css2?family=Bangers&display=swap',
+        fontHref: 'https://fonts.googleapis.com/css2?family=Bangers&family=Londrina+Solid:wght@400;900&display=swap',
         on: {
             activate: onActivate,
             deactivate: onDeactivate,

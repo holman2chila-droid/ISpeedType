@@ -334,7 +334,7 @@
 
     T.register('graffiti', {
         bodyClass: 'theme-graffiti',
-        fontHref: 'https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap',
+        fontHref: 'https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Caveat+Brush&display=swap',
         on: {
             activate: onActivate,
             deactivate: onDeactivate,
