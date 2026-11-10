@@ -196,6 +196,7 @@
             this._onKeyDown = this._onKeyDown.bind(this);
             this._onVisibility = this._onVisibility.bind(this);
             this._onContainerClick = () => { if (this.running) this.o.input.focus(); };
+            this._fpsGate = window.SpeedPerf ? window.SpeedPerf.limiter(60) : () => true;
             this._resetState();
         }
 
@@ -340,6 +341,8 @@
         _tick(now) {
             if (!this.running) return;
             this._raf = requestAnimationFrame(this._tick);
+            // Tope de 60 fps: en pantallas de 144 Hz no se calcula ni se pinta de más (el movimiento usa dt, así que la velocidad no cambia)
+            if (!this._fpsGate(now)) return;
             let dt = (now - this._last) / 1000;
             this._last = now;
             if (dt > MAX_DT) dt = MAX_DT;

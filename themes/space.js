@@ -444,13 +444,17 @@ void main(){
         }
     }
 
+    const gate60 = window.SpeedPerf ? window.SpeedPerf.limiter(60) : () => true;
+    const gate30 = window.SpeedPerf ? window.SpeedPerf.limiter(30) : () => true;
     let frameCount = 0;
     function frame(ts) {
         rafId = 0;
         if (!running) return;
         rafId = requestAnimationFrame(frame);
+        // Tope de fotogramas con corrección de deriva: 60 fps jugando, 30 fps en el lobby/menús
+        const gate = document.documentElement.classList.contains('modo-juego') ? gate60 : gate30;
+        if (!gate(ts)) return;
         const dtMs = ts - lastT;
-        if (dtMs < 14) return;                       // tope ≈ 60 fps
         lastT = ts;
         const dt = Math.min(dtMs, 100) / 1000;
 

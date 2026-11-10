@@ -1575,8 +1575,12 @@
         fadeAccumulator = 0;
         fadePrevTimestamp = null;
 
+        const fadeGate = window.SpeedPerf ? window.SpeedPerf.limiter(60) : () => true;
+
         function fadeTick(timestamp) {
             if (isFinished || isGameOver) return;
+            // Tope de 60 fps (la lógica usa delta time, la velocidad del desvanecimiento no cambia)
+            if (!fadeGate(timestamp)) { fadeRafId = requestAnimationFrame(fadeTick); return; }
 
             if (fadePrevTimestamp === null) fadePrevTimestamp = timestamp;
             const deltaMs = timestamp - fadePrevTimestamp;

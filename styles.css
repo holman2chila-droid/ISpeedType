@@ -216,39 +216,38 @@ body {
 .bg-glow {
     position: fixed;
     border-radius: 50%;
-    filter: blur(120px);
+    /* Sin filter: blur(): un desenfoque de 120px sobre capas grandes es carísimo para la iGPU.
+       El degradado radial ya es suave y los fondos son estáticos (sin animación continua). */
     pointer-events: none;
     z-index: 0;
     opacity: 0.5;
+    contain: strict;
     transition: background 0.6s ease;
 }
 
 .bg-glow-1 {
-    width: 500px;
-    height: 500px;
+    width: 760px;
+    height: 760px;
     background: radial-gradient(circle, var(--glow-1), transparent 70%);
     top: -150px;
     left: -100px;
-    animation: float-glow 12s ease-in-out infinite;
 }
 
 .bg-glow-2 {
-    width: 400px;
-    height: 400px;
+    width: 640px;
+    height: 640px;
     background: radial-gradient(circle, var(--glow-2), transparent 70%);
     bottom: -100px;
     right: -80px;
-    animation: float-glow 15s ease-in-out infinite reverse;
 }
 
 .bg-glow-3 {
-    width: 300px;
-    height: 300px;
+    width: 520px;
+    height: 520px;
     background: radial-gradient(circle, var(--glow-3), transparent 70%);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    animation: float-glow 18s ease-in-out infinite;
 }
 
 @keyframes float-glow {
@@ -3963,4 +3962,24 @@ body.deadzone-active .glass-card.typing-card {
 
 @media (prefers-reduced-motion: reduce) {
     .lang-btn { transition: none; }
+}
+
+
+/* ===== Rendimiento (perf.js) ===== */
+/* Pestaña oculta o lobby inactivo: todas las animaciones CSS en pausa (vuelven al interactuar) */
+html.is-hidden *, html.is-hidden *::before, html.is-hidden *::after,
+html.is-idle *, html.is-idle *::before, html.is-idle *::after {
+    animation-play-state: paused !important;
+}
+
+/* Durante una partida el desenfoque de fondo (backdrop-filter) se recalcula en cada
+   cambio de lo que hay detrás: se desactiva y los paneles quedan casi opacos. */
+html.modo-juego *, html.modo-juego *::before, html.modo-juego *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* Quien prefiere menos movimiento: sin animaciones decorativas continuas */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-iteration-count: 1 !important; }
 }
