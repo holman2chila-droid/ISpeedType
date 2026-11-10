@@ -50,8 +50,42 @@
         window.addEventListener(ev, wake, { passive: true, capture: true }));
     wake();
 
+    // --- Modo ahorro (html.low-power) ---
+    // Quita los efectos más caros de pintar (desenfoques de fondo, brillos animados) cuando:
+    //   · el navegador no acelera por hardware (render por software), o
+    //   · es Brave (su gestión de la iGPU a 144 Hz puede disparar el consumo), o
+    //   · se fuerza con ?lowpower=1 (o se desactiva con ?lowpower=0). Se recuerda en localStorage.
+    function setLow(on) { root.classList.toggle('low-power', !!on); }
+    function detectLowPower() {
+        let forced = null;
+        try {
+            const q = new URLSearchParams(location.search).get('lowpower');
+            if (q === '1' || q === '0') { forced = q === '1'; localStorage.setItem('speedtype-lowpower', q); }
+            else forced = { '1': true, '0': false }[localStorage.getItem('speedtype-lowpower')] ;
+        } catch (e) { /* sin almacenamiento */ }
+        if (forced !== undefined && forced !== null) { setLow(forced); return; }
+        // Render por software (sin GPU)
+        try {
+            const gl = document.createElement('canvas').getContext('webgl');
+            if (gl) {
+                const ext = gl.getExtension('WEBGL_debug_renderer_info');
+                const r = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
+                if (/swiftshader|llvmpipe|software|basic render/i.test(r)) setLow(true);
+                const lose = gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext();
+            }
+        } catch (e) { /* sin WebGL */ }
+        // Brave
+        try {
+            if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
+                navigator.brave.isBrave().then((yes) => { if (yes) setLow(true); }).catch(() => {});
+            }
+        } catch (e) { /* no es Brave */ }
+    }
+    detectLowPower();
+
     window.SpeedPerf = {
         limiter,
+        get lowPower() { return root.classList.contains('low-power'); },
         get idle() { return root.classList.contains('is-idle'); },
         get hidden() { return document.hidden; }
     };

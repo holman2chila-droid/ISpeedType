@@ -1592,8 +1592,9 @@ body.survival-active .typing-input:focus {
 }
 
 @keyframes fade-icon-pulse {
-    0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px rgba(0, 212, 255, 0.4)); }
-    50%       { opacity: 0.6; filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.8)); }
+    /* Solo opacity (se compone en GPU); animar filter: drop-shadow obliga a repintar en cada fotograma */
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.6; }
 }
 
 /* Slider variante cyan para el switch de Fade Mode */
@@ -3983,3 +3984,10 @@ html.modo-juego *, html.modo-juego *::before, html.modo-juego *::after {
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-iteration-count: 1 !important; }
 }
+
+/* Modo ahorro (perf.js): sin desenfoques de fondo ni brillos animados */
+html.low-power *, html.low-power *::before, html.low-power *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+html.low-power .bg-glow { display: none; }
